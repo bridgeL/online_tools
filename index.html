@@ -5,7 +5,7 @@
     <title>导航页</title>
     <style>
         #main {
-            position: fixed;
+            position: absolute;
             top: 10%;
             left: 40%;
             transform: translateX(-50%);
@@ -19,17 +19,21 @@
 
         #tools {
             width: 60vw;
-            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         #tools>div {
+            cursor: pointer;
             width: calc(100% - 42px);
+
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            
             border: 1px solid gray;
             border-radius: 5px;
-            margin-bottom: 20px;
             padding: 20px;
         }
 
@@ -38,11 +42,18 @@
             background-color: gray;
         }
 
-        #tools>div>div {
+        .name {
             width: 80%;
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
         }
 
-        #tools>div>a {
+        .name>div:first-child {
+            width: 60px;
+        }
+
+        a {
             color: inherit;
             text-decoration-line: none;
         }
@@ -61,11 +72,18 @@
             data = data.urls;
             let inner_html = "";
             data.forEach(el => {
-                let name = el["name"];
-                let url = el["url"];
-                inner_html += `<div onclick="goto_url(this)"><div>${name}</div><a href="${url}">前往</a></div>`;
+                let name = el.name;
+                let url = el.url;
+                let type = el.type;
+                inner_html += `<div onclick="goto_url(this)">
+    <div class="name">
+        <div>[${type}]</div>
+        <div>${name}</div>
+    </div>
+    <a href="${url}">前往</a>
+</div>`;
             });
-            tools.innerHTML = inner_html;
+            tools.innerHTML = inner_html + "<br><br>";
         });
 
         const goto_url = (el) => {

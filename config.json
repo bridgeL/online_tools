@@ -20,8 +20,14 @@
         },
         {
             "name": "十二时辰",
-            "url": "tools/time/index.html",
-            "type": "系统",
+            "url": "games/time/index.html",
+            "type": "游戏",
+            "date": "2023/04/11"
+        },
+        {
+            "name": "2048",
+            "url": "games/2048/index.html",
+            "type": "游戏",
             "date": "2023/04/11"
         }
     ]
