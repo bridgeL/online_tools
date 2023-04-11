@@ -41,6 +41,12 @@
             "url": "games/cocktail/index.html",
             "type": "游戏",
             "date": "2023/04/11"
+        },
+        {
+            "name": "2048增强版",
+            "url": "games/2048-plus.html",
+            "type": "游戏",
+            "date": "2023/04/11"
         }
     ]
 }
