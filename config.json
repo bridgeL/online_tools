@@ -29,6 +29,12 @@
             "url": "games/2048/index.html",
             "type": "游戏",
             "date": "2023/04/11"
+        },
+        {
+            "name": "倒水",
+            "url": "games/cocktail/index.html",
+            "type": "游戏",
+            "date": "2023/04/11"
         }
     ]
 }
