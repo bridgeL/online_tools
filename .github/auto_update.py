@@ -9,7 +9,7 @@ text = readme_path.read_text("utf8")
 text = text.split("## 功能一览")[0]
 text += "## 功能一览\n\n分类|功能|更新日期\n-|-|-\n"
 
-urls_path = Path("configs.json")
+urls_path = Path("config.json")
 data = json.loads(urls_path.read_text("utf8"))
 data = data["urls"]
 
