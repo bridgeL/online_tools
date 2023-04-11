@@ -5,7 +5,6 @@
     <title>导航页</title>
     <style>
         #main {
-            user-select: none;
             position: fixed;
             top: 10%;
             left: 40%;
@@ -13,6 +12,7 @@
         }
 
         #greeting {
+            user-select: none;
             font-size: 100px;
             font-weight: 900;
         }
@@ -50,13 +50,15 @@
 </head>
 <body>
     <div id="main">
+        <i>更新日期：2023/04/11</i>
         <div id="greeting">hi.</div>
         <div id="tools"></div>
     </div>
     <script>
-        fetch("urls.json").then((res) => {
+        fetch("config.json").then((res) => {
             if (res.status === 200) return res.json();
         }).then(data => {
+            data = data.urls;
             let inner_html = "";
             data.forEach(el => {
                 let name = el["name"];
