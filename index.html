@@ -17,6 +17,15 @@
             font-weight: 900;
         }
 
+        #search {
+            width: calc(60vw - 30px);
+            font-size: 16px;
+            margin: 10px 0;
+            border: 1px solid gray;
+            border-radius: 5px;
+            padding: 10px 20px;
+        }
+
         #tools {
             width: 60vw;
             display: flex;
@@ -26,12 +35,10 @@
 
         #tools>div {
             cursor: pointer;
-            width: calc(100% - 42px);
-
+            width: calc(60vw - 30px);
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            
             border: 1px solid gray;
             border-radius: 5px;
             padding: 20px;
@@ -63,13 +70,17 @@
     <div id="main">
         <i>更新日期：2023/04/11</i>
         <div id="greeting">hi.</div>
+        <input
+            id="search"
+            type="text"
+            onchange="filter(this)"
+            placeholder="search"
+        >
         <div id="tools"></div>
     </div>
     <script>
-        fetch("config.json", { cache: "no-store" }).then((res) => {
-            if (res.status === 200) return res.json();
-        }).then(data => {
-            data = data.urls;
+        const total = {};
+        const update = (data) => {
             let inner_html = "";
             data.forEach(el => {
                 let name = el.name;
@@ -84,10 +95,25 @@
 </div>`;
             });
             tools.innerHTML = inner_html + "<br><br>";
+        };
+
+        fetch("config.json", { cache: "no-store" }).then((res) => {
+            if (res.status === 200) return res.json();
+        }).then(data => {
+            total.data = data;
+            update(data.urls);
         });
 
         const goto_url = (el) => {
             el.querySelector("a").click();
+        };
+
+        const filter = (el) => {
+            let keyword = el.value;
+            let data = total.data.urls.filter(d => {
+                return `${d.type} ${d.name}`.indexOf(keyword) >= 0;
+            });
+            update(data);
         }
     </script>
 </body>
