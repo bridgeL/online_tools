@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>导航页</title>
+    <style>
+        #main {
+            user-select: none;
+            position: fixed;
+            top: 10%;
+            left: 40%;
+            transform: translateX(-50%);
+        }
+
+        #greeting {
+            font-size: 100px;
+            font-weight: 900;
+        }
+
+        #tools {
+            width: 60vw;
+            cursor: pointer;
+        }
+
+        #tools>div {
+            width: calc(100% - 42px);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            border: 1px solid gray;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        #tools>div:hover {
+            color: white;
+            background-color: gray;
+        }
+
+        #tools>div>div {
+            width: 80%;
+        }
+
+        #tools>div>a {
+            color: inherit;
+            text-decoration-line: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="greeting">hi.</div>
+        <div id="tools"></div>
+    </div>
+    <script>
+        fetch("urls.json").then((res) => {
+            if (res.status === 200) return res.json();
+        }).then(data => {
+            let inner_html = "";
+            data.forEach(el => {
+                let name = el["name"];
+                let url = el["url"];
+                inner_html += `<div onclick="goto_url(this)"><div>${name}</div><a href="${url}">前往</a></div>`;
+            });
+            tools.innerHTML = inner_html;
+        });
+
+        const goto_url = (el) => {
+            el.querySelector("a").click();
+        }
+    </script>
+</body>
+</html>

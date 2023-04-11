@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>快速生成python爬虫代码</title>
+    <style>
+        textarea {
+            width: 500px;
+            resize: none;
+        }
+
+        #url {
+            height: 80px;
+        }
+
+        #req {
+            height: 250px;
+        }
+
+        #code {
+            height: 400px;
+            background-color: #eee;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <details>
+        <summary style="cursor: pointer; user-select: none;"> 帮助 </summary>
+        <p>打开谷歌浏览器开发者工具(F12)，并刷新页面</p>
+        <p>在网络(Network)标签页下，找到要抓取的请求</p>
+        <p>右键菜单复制<b>链接地址、请求标头</b>，粘贴到本站对应地址</p>
+    </details>
+    <div class="main">
+        <div>
+            <div>
+                <h4>链接地址</h4>
+                <textarea
+                    id="url"
+                    onchange="build_code()"
+                ></textarea>
+            </div>
+            <div>
+                <h4>请求标头</h4>
+                <div id="backdrop"></div>
+                <textarea
+                    id="req"
+                    onchange="build_code()"
+                ></textarea>
+            </div>
+        </div>
+        <div>
+            <div>
+                <h4>代码</h4>
+                <textarea id="code"></textarea>
+            </div>
+            <button onclick="copy()">Copy text</button>
+        </div>
+    </div>
+    <br>
+    <br>
+    <!-- convert logic -->
+    <script>
+        const build_code = () => {
+            // parse url value
+            let raw_url = url.value.split("\n")[0].trim();
+            let ts = unescape(decodeURI(raw_url)).split("?", 2);
+            let _url = '"' + ts[0] + '"';
+
+            let params = "{}";
+            if (ts.length > 1) {
+                params = "{\n";
+                ts[1].split("&").forEach(t => {
+                    let vs = t.split("=", 2);
+                    let k = vs[0];
+                    let v = vs[1];
+                    params += `    "${k}":"${v}",\n`;
+                });
+                params += "}";
+            }
+
+            // parse req value
+            let lines = [];
+            req.value.split("\n").forEach(line => {
+                if (line.trim()) lines.push(line);
+            });
+            let method = "get";;
+            let headers = "{}";
+            if (lines.length > 1) {
+                method = lines[0].split(" ")[0].toLowerCase();
+                if (method != "get" && method != "post") method = "get";
+
+                headers = "{\n";
+                lines.slice(1).forEach(line => {
+                    let ts = line.split(":");
+                    let k = ts[0].trim();
+                    let v = ts[1].trim();
+                    headers += `    "${k}":"${v}",\n`;
+                });
+                headers += "}";
+            }
+
+            // set code value
+            code.value = `import requests
+
+url = ${_url}
+headers = ${headers}
+params = ${params}
+
+res = requests.${method}(url=url, headers=headers, params=params)
+print(res.content)
+`;
+        };
+
+        const copy = () => {
+            code.select();
+            code.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(code.value);
+            code.setSelectionRange(0, 0);
+            alert("已复制到剪贴板 👌");
+        };
+    </script>
+</body>
+</html>
