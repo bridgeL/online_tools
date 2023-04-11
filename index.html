@@ -2,7 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
     <title>导航页</title>
     <style>
         #main {
@@ -40,6 +43,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            align-items: center;
             border: 1px solid gray;
             border-radius: 5px;
             padding: 20px;
@@ -52,13 +56,10 @@
 
         .name {
             width: 80%;
-            display: flex;
-            flex-direction: row;
-            justify-content: left;
         }
 
-        .name>div:first-child {
-            width: 60px;
+        .name i {
+            font-size: 10px;
         }
 
         a {
@@ -86,10 +87,10 @@
             data.forEach(el => {
                 let name = el.name;
                 let url = el.url;
-                let type = el.type;
+                let labels = el.labels.join(" ");
                 inner_html += `<div onclick="goto_url(this)">
     <div class="name">
-        <div>[${type}]</div>
+        <i>${labels}</i>
         <div>${name}</div>
     </div>
     <a href="${url}" target="_blank">前往</a>
@@ -112,7 +113,7 @@
         const filter = (el) => {
             let keyword = el.value;
             let data = total.data.urls.filter(d => {
-                return `${d.type} ${d.name}`.indexOf(keyword) >= 0;
+                return `${d.labels} ${d.name}`.indexOf(keyword) >= 0;
             });
             update(data);
         }

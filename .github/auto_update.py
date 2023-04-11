@@ -7,14 +7,15 @@ import re
 readme_path = Path("readme.md")
 text = readme_path.read_text("utf8")
 text = text.split("## 功能一览")[0]
-text += "## 功能一览\n\n分类|功能|更新日期\n-|-|-\n"
+text += "## 功能一览\n\n功能|标签|更新日期\n-|-|-\n"
 
 urls_path = Path("config.json")
 data = json.loads(urls_path.read_text("utf8"))
 data = data["urls"]
 
 for d in data:
-    text += f'{d["type"]}|[{d["name"]}](https://bridgel.github.io/online_tools/{d["url"]})|{d["date"]}\n'
+    labels = " ".join(d["labels"])
+    text += f'[{d["name"]}](https://bridgel.github.io/online_tools/{d["url"]})|{labels}|{d["date"]}\n'
 
 time_s = datetime.now().strftime("%Y/%m/%d")
 text = re.sub(r"<i>更新日期：.*?</i>", f"<i>更新日期：{time_s}</i>", text)

@@ -3,49 +3,68 @@
         {
             "name": "仓库",
             "url": "https://github.com/bridgeL/online_tools",
-            "type": "源码",
+            "labels": [
+                "源码"
+            ],
             "date": "2023/04/10"
         },
         {
             "name": "计时器",
             "url": "tools/timer.html",
-            "type": "系统",
+            "labels": [
+                "系统",
+                "工具"
+            ],
             "date": "2023/04/10"
         },
         {
             "name": "快速生成python爬虫代码",
             "url": "tools/quick_spider.html",
-            "type": "爬虫",
+            "labels": [
+                "爬虫",
+                "工具"
+            ],
             "date": "2023/04/11"
         },
         {
             "name": "快速生成python爬虫代码2",
             "url": "tools/quick_spider2.html",
-            "type": "爬虫",
+            "labels": [
+                "爬虫",
+                "工具"
+            ],
             "date": "2023/04/11"
         },
         {
             "name": "十二时辰",
             "url": "games/time/index.html",
-            "type": "游戏",
+            "labels": [
+                "游戏"
+            ],
             "date": "2023/04/11"
         },
         {
             "name": "2048",
             "url": "games/2048/index.html",
-            "type": "游戏",
+            "labels": [
+                "游戏"
+            ],
             "date": "2023/04/11"
         },
         {
             "name": "倒水",
             "url": "games/cocktail/index.html",
-            "type": "游戏",
+            "labels": [
+                "游戏"
+            ],
             "date": "2023/04/11"
         },
         {
             "name": "2048增强版",
             "url": "games/2048-plus.html",
-            "type": "游戏",
+            "labels": [
+                "游戏"
+            ],
             "date": "2023/04/11"
         }
     ]
