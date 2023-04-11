@@ -19,3 +19,4 @@
 爬虫|[快速生成python爬虫代码2](https://bridgel.github.io/online_tools/tools/quick_spider2.html)|2023/04/11
 游戏|[十二时辰](https://bridgel.github.io/online_tools/games/time/index.html)|2023/04/11
 游戏|[2048](https://bridgel.github.io/online_tools/games/2048/index.html)|2023/04/11
+游戏|[倒水](https://bridgel.github.io/online_tools/games/cocktail/index.html)|2023/04/11
