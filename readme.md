@@ -12,13 +12,13 @@
 
 ## 功能一览
 
-分类|功能|更新日期
+功能|标签|更新日期
 -|-|-
-源码|[仓库](https://bridgel.github.io/online_tools/https://github.com/bridgeL/online_tools)|2023/04/10
-系统|[计时器](https://bridgel.github.io/online_tools/tools/timer.html)|2023/04/10
-爬虫|[快速生成python爬虫代码](https://bridgel.github.io/online_tools/tools/quick_spider.html)|2023/04/11
-爬虫|[快速生成python爬虫代码2](https://bridgel.github.io/online_tools/tools/quick_spider2.html)|2023/04/11
-游戏|[十二时辰](https://bridgel.github.io/online_tools/games/time/index.html)|2023/04/11
-游戏|[2048](https://bridgel.github.io/online_tools/games/2048/index.html)|2023/04/11
-游戏|[倒水](https://bridgel.github.io/online_tools/games/cocktail/index.html)|2023/04/11
-游戏|[2048增强版](https://bridgel.github.io/online_tools/games/2048-plus.html)|2023/04/11
+[仓库](https://bridgel.github.io/online_tools/https://github.com/bridgeL/online_tools)|源码|2023/04/10
+[计时器](https://bridgel.github.io/online_tools/tools/timer.html)|系统 工具|2023/04/10
+[快速生成python爬虫代码](https://bridgel.github.io/online_tools/tools/quick_spider.html)|爬虫 工具|2023/04/11
+[快速生成python爬虫代码2](https://bridgel.github.io/online_tools/tools/quick_spider2.html)|爬虫 工具|2023/04/11
+[十二时辰](https://bridgel.github.io/online_tools/games/time/index.html)|游戏|2023/04/11
+[2048](https://bridgel.github.io/online_tools/games/2048/index.html)|游戏|2023/04/11
+[倒水](https://bridgel.github.io/online_tools/games/cocktail/index.html)|游戏|2023/04/11
+[2048增强版](https://bridgel.github.io/online_tools/games/2048-plus.html)|游戏|2023/04/11
