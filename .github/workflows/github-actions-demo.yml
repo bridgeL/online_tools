@@ -1,0 +1,29 @@
+name: GitHub Actions Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v4.3.0
+        with:
+          python-version: '3.8'
+      - name: Auto Update #Api调用
+        run: |
+          python ./.github/auto_update.py
+      - name: Push to Git
+        run : |
+          git config user.email autoupdate@users.noreply.github.com
+          git config user.name autoupdate
+          git add readme.md
+          git commit -m "Auto Update"
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

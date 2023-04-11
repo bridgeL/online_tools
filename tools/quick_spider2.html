@@ -2,23 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>快速生成python爬虫代码</title>
+    <title>快速生成python爬虫代码2</title>
     <style>
         textarea {
             width: 500px;
+            height: 400px;
             resize: none;
         }
 
-        #url {
-            height: 80px;
-        }
-
-        #req {
-            height: 250px;
-        }
-
         #code {
-            height: 400px;
             background-color: #eee;
         }
 
@@ -38,36 +30,32 @@
 
 2. 在网络(Network)标签页下，找到要抓取的请求
 
-3. 右键菜单复制<b>链接地址、请求标头</b>，粘贴到本站对应地址
+3. 右键菜单复制<b>以fetch格式复制</b>，粘贴到本站对应地址
 
 4. 在生成的代码中，一些sec-xxx的headers可以适当丢弃
         </pre>
     </details>
     <div class="main">
         <div>
-            <div>
-                <h4>链接地址</h4>
-                <textarea
-                    id="url"
-                    onchange="build_code()"
-                >http://q.jrjimg.cn/?q=cn|i&i=000300,399102,399101&n=indexQuote&c=l&_=101947</textarea>
-            </div>
-            <div>
-                <h4>请求标头</h4>
-                <textarea
-                    id="req"
-                    onchange="build_code()"
-                >GET /?q=cn|i&i=000300,399102,399101&n=indexQuote&c=l&_=101947 HTTP/1.1
-Accept: */*
-Accept-Encoding: gzip, deflate
-Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
-Cache-Control: no-cache
-Host: q.jrjimg.cn
-Pragma: no-cache
-Proxy-Connection: keep-alive
-Referer: http://stock.jrj.com.cn/
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36</textarea>
-            </div>
+            <h4>以fetch格式复制</h4>
+            <textarea
+                id="req"
+                onchange="build_code()"
+            >fetch("http://q.jrjimg.cn/?q=cn|i&i=000300,399102,399101&n=indexQuote&c=l&_=135659", {
+"headers": {
+    "accept": "*/*",
+    "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "cache-control": "no-cache",
+    "pragma": "no-cache",
+    "proxy-connection": "keep-alive"
+},
+"referrer": "http://stock.jrj.com.cn/",
+"referrerPolicy": "strict-origin-when-cross-origin",
+"body": null,
+"method": "GET",
+"mode": "cors",
+"credentials": "omit"
+});</textarea>
         </div>
         <div>
             <div>
@@ -81,8 +69,10 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     <br>
     <script>
         const build_code = () => {
+            let r = req.value.match(/fetch\("(.*?)",(.*)\)/s);
+
             // url, params
-            let raw_url = url.value.split("\n")[0].trim();
+            let raw_url = r[1];
             let ts = unescape(decodeURI(raw_url)).split("?", 2);
             let _url = '"' + ts[0] + '"';
 
@@ -92,7 +82,6 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
                 ts[1].split("&").forEach(t => {
                     let vs = t.split("=", 2);
                     let k = vs[0];
-
                     let v = vs[1].replaceAll('"', '\\"');;
                     params += `    "${k}":"${v}",\n`;
                 });
@@ -100,24 +89,27 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
             }
 
             // headers, method
-            let lines = [];
-            req.value.split("\n").forEach(line => {
-                if (line.trim()) lines.push(line);
+            let config = JSON.parse(r[2]);
+            console.log(config);
+            let method = config.method.toLowerCase();
+            config.headers.referrer = config.referrer;
+            let headers = "{\n";
+            Object.keys(config.headers).forEach(k => {
+                let v = config.headers[k].replaceAll('"', '\\"');
+                headers += `    "${k}":"${v}",\n`;
             });
-            let method = "get";;
-            let headers = "{}";
-            if (lines.length > 1) {
-                method = lines[0].split(" ")[0].toLowerCase();
-                if (method != "get" && method != "post") method = "get";
+            headers += "}";
 
-                headers = "{\n";
-                lines.slice(1).forEach(line => {
-                    let ts = line.split(":");
-                    let k = ts[0].trim();
-                    let v = ts[1].trim().replaceAll('"', '\\"');;
-                    headers += `    "${k}":"${v}",\n`;
+            // body
+            let body = "{}";
+            if (config.body) {
+                let _body = JSON.parse(config.body);
+                body = "{\n";
+                Object.keys(_body).forEach(k => {
+                    let v = _body[k].replaceAll('"', '\\"');;
+                    body += `    "${k}":"${v}",\n`;
                 });
-                headers += "}";
+                body += "}";
             }
 
             // set code value
@@ -126,8 +118,9 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 url = ${_url}
 headers = ${headers}
 params = ${params}
+body = ${body}
 
-res = requests.${method}(url=url, headers=headers, params=params)
+res = requests.${method}(url=url, headers=headers, params=params, json=body)
 print(res.content)
 `;
         };

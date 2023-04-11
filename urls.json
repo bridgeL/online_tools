@@ -1,10 +1,20 @@
 [
     {
         "name": "快速生成python爬虫代码",
-        "url": "tools/quick_spider.html"
+        "url": "tools/quick_spider.html",
+        "type": "爬虫",
+        "date": "2023/04/11"
     },
     {
         "name": "计时器",
-        "url": "tools/timer.html"
+        "url": "tools/timer.html",
+        "type": "系统",
+        "date": "2023/04/11"
+    },
+    {
+        "name": "快速生成python爬虫代码2",
+        "url": "tools/quick_spider2.html",
+        "type": "爬虫",
+        "date": "2023/04/11"
     }
 ]
