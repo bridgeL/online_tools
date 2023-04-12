@@ -51,7 +51,6 @@
 
         config = {};
         if (d - old_d >= 3600_000) {
-            console.log(d, old_d);
             config.cache = "reload";
             localStorage.setItem("update_time", d);
         }
