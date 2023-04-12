@@ -23,7 +23,7 @@ concurrency:
 
 
 jobs:
-  Explore-GitHub-Actions:
+  rewrite-readme:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,6 +50,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
+    needs: [rewrite-readme]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
