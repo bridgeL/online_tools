@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
+    <title>时间戳</title>
+    <style>
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        input,
+        button {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <input
+        type="text"
+        id="t_stamp"
+        placeholder="0"
+        onclick="show_holder(this)"
+        onchange="change(0)"
+    >
+    <input
+        type="text"
+        id="t_string"
+        placeholder="2023/04/12 16:40:38"
+        onclick="show_holder(this)"
+        onchange="change(1)"
+    >
+    <button onclick="clear1()">清空</button>
+    <script>
+        const stamp_to_string = (stamp) => {
+            if (!stamp) return "";
+            let date = new Date(stamp * 1000);
+            let Y = date.getFullYear();
+            let M = ("00" + (date.getMonth() + 1)).slice(-2);
+            let D = ("00" + date.getDate()).slice(-2);
+            let h = ("00" + date.getHours()).slice(-2);
+            let m = ("00" + date.getMinutes()).slice(-2);
+            let s = ("00" + date.getSeconds()).slice(-2);
+            return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
+        };
+
+        const string_to_stamp = (string) => {
+            if (!string) return "";
+            return ("" + new Date(string).getTime()).slice(0, -3);
+        };
+
+        const change = (f) => {
+            if (f) t_stamp.value = string_to_stamp(t_string.value);
+            else t_string.value = stamp_to_string(t_stamp.value);
+        };
+
+        const show_holder = (el) => {
+            if (!el.value) {
+                t_string.value = t_string.placeholder;
+                t_stamp.value = t_stamp.placeholder;
+            }
+        };
+
+        const update = () => {
+            let d = String(new Date().getTime()).slice(0, -3);
+            t_stamp.placeholder = d;
+            t_string.placeholder = stamp_to_string(d);
+        };
+
+        const clear1 = () => {
+            console.log(11);
+            t_stamp.value = "";
+            t_string.value = "";
+        };
+
+        update();
+
+        setInterval(update, 100)
+    </script>
+</body>
+</html>
