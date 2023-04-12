@@ -2,6 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
     <title>快速生成python爬虫代码</title>
     <style>
         textarea {
@@ -83,7 +87,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
         const build_code = () => {
             // url, params
             let raw_url = url.value.split("\n")[0].trim();
-            let ts = unescape(decodeURI(raw_url)).split("?", 2);
+            let ts = decodeURI(raw_url).split("?", 2);
             let _url = '"' + ts[0] + '"';
 
             let params = "{}";

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
+    <title>猜测编码</title>
+    <script src="./gbk.js"></script>
+    <style>
+        details {
+            margin-bottom: 20px;
+        }
+
+        summary {
+            cursor: pointer;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+
+        textarea {
+            width: 500px;
+            resize: none;
+            background-color: #eee;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        #code_input {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h4>输入</h4>
+    <textarea
+        id="code_input"
+        onchange="change()"
+    ></textarea>
+    <h4>输出</h4>
+    <details open>
+        <summary>UTF8</summary>
+        <textarea id="utf8_output"></textarea>
+    </details>
+    <details open>
+        <summary>GBK</summary>
+        <textarea id="gbk_output"></textarea>
+    </details>
+    <details open>
+        <summary>BASE64</summary>
+        <textarea id="base64_output"></textarea>
+    </details>
+    <script>
+        const update_utf8 = () => {
+            utf8_output.value = decodeURIComponent(
+                code_input.value
+                    .replaceAll("\\\\x", "%")
+                    .replaceAll("\\x", "%")
+            );
+        };
+
+        const update_gbk = () => {
+            gbk_output.value = GBK.URI.decodeURIComponent(
+                code_input.value
+                    .replaceAll("\\\\x", "%")
+                    .replaceAll("\\x", "%")
+            );
+        };
+
+        const update_base64 = () => {
+            base64_output.value = atob(code_input.value);
+        };
+
+        const change = () => {
+            try { update_utf8(); } catch (error) { }
+            try { update_gbk(); } catch (error) { }
+            try { update_base64(); } catch (error) { }
+            update_height();
+        };
+
+        const update_height = () => {
+            var elements = document.getElementsByTagName("textarea");
+            for (let e of elements) {
+                e.style.height = 'auto';
+                e.scrollTop = 0; //防抖动
+                e.style.height = e.scrollHeight + 'px';
+            }
+        }
+    </script>
+</body>
+</html>

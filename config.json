@@ -37,7 +37,7 @@
         },
         {
             "name": "十二时辰",
-            "url": "games/time/index.html",
+            "url": "games/time/",
             "labels": [
                 "游戏"
             ],
@@ -45,7 +45,7 @@
         },
         {
             "name": "2048",
-            "url": "games/2048/index.html",
+            "url": "games/2048/",
             "labels": [
                 "游戏"
             ],
@@ -53,7 +53,7 @@
         },
         {
             "name": "倒水",
-            "url": "games/cocktail/index.html",
+            "url": "games/cocktail/",
             "labels": [
                 "游戏"
             ],
@@ -66,6 +66,15 @@
                 "游戏"
             ],
             "date": "2023/04/11"
+        },
+        {
+            "name": "在线编码转换",
+            "url": "tools/guess_code/",
+            "labels": [
+                "编码",
+                "工具"
+            ],
+            "date": "2023/04/12"
         }
     ]
 }

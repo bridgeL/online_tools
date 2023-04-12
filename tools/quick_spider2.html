@@ -2,6 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
     <title>快速生成python爬虫代码2</title>
     <style>
         textarea {
@@ -73,7 +77,7 @@
 
             // url, params
             let raw_url = r[1];
-            let ts = unescape(decodeURI(raw_url)).split("?", 2);
+            let ts = decodeURI(raw_url).split("?", 2);
             let _url = '"' + ts[0] + '"';
 
             let params = "{}";

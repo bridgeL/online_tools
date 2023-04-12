@@ -17,13 +17,13 @@ for d in data:
     labels = " ".join(d["labels"])
     text += f'[{d["name"]}](https://bridgel.github.io/online_tools/{d["url"]})|{labels}|{d["date"]}\n'
 
-time_s = datetime.now().strftime("%Y/%m/%d")
-text = re.sub(r"<i>更新日期：.*?</i>", f"<i>更新日期：{time_s}</i>", text)
+time_s = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+text = re.sub(r"<i>更新时间：.*?</i>", f"<i>更新时间：{time_s}</i>", text)
 
 readme_path.write_text(text, "utf8")
 
 # index.html
 index_path = Path("index.html")
 text = index_path.read_text("utf8")
-text = re.sub(r"<i>更新日期：.*?</i>", f"<i>更新日期：{time_s}</i>", text)
+text = re.sub(r"<i>更新时间：.*?</i>", f"<i>更新时间：{time_s}</i>", text)
 index_path.write_text(text, "utf8")
