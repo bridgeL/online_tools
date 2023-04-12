@@ -46,7 +46,18 @@
             if (k == "q") search.value = v;
         });
 
-        fetch("config.json", { cache: "no-store" }).then((res) => {
+        let d = new Date().getTime();
+        let old_d = localStorage.getItem("update_time");
+
+        config = {};
+        if (d - old_d >= 3600_000) {
+            console.log(d, old_d);
+            config.cache = "reload";
+            localStorage.setItem("update_time", d);
+        }
+        else config.cache = "default";
+
+        fetch("config.json", config).then((res) => {
             if (res.status === 200) return res.json();
         }).then(data => {
             total.data = data;
