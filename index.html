@@ -7,6 +7,69 @@
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     >
     <title>导航页</title>
+</head>
+<body>
+    <div id="main">
+        <i>更新时间：2023/04/12 16:36:12</i>
+        <div id="greeting">hi.</div>
+        <input
+            id="search"
+            type="text"
+            onchange="change()"
+            placeholder="search"
+        >
+        <div id="tools"></div>
+    </div>
+    <script>
+        const total = {};
+        const update = (data) => {
+            let inner_html = "";
+            data.forEach(el => {
+                let name = el.name;
+                let url = el.url;
+                let labels = el.labels.join(" ");
+                inner_html += `<div onclick="goto_url(this)">
+    <div class="name">
+        <i>${labels}</i>
+        <div>${name}</div>
+    </div>
+    <a href="${url}" target="_blank">前往</a>
+</div>`;
+            });
+            tools.innerHTML = inner_html + "<br><br>";
+        };
+
+        document.location.search.slice(1).split("&").forEach(e => {
+            let ts = e.split("=", 2);
+            let k = ts[0];
+            let v = decodeURIComponent(ts[1]);
+            if (k == "q") search.value = v;
+        });
+
+        fetch("config.json", { cache: "no-store" }).then((res) => {
+            if (res.status === 200) return res.json();
+        }).then(data => {
+            total.data = data;
+            filter(search.value);
+        });
+
+        const goto_url = (el) => {
+            el.querySelector("a").click();
+        };
+
+        const filter = (keyword) => {
+            let data = total.data.urls.filter(d => {
+                return `${d.labels} ${d.name}`.indexOf(keyword) >= 0;
+            });
+            update(data);
+        };
+
+        const change = () => {
+            document.location.search = `?q=${search.value}`;
+        }
+
+
+    </script>
     <style>
         #main {
             position: absolute;
@@ -67,56 +130,5 @@
             text-decoration-line: none;
         }
     </style>
-</head>
-<body>
-    <div id="main">
-        <i>更新时间：2023/04/12 16:36:12</i>
-        <div id="greeting">hi.</div>
-        <input
-            id="search"
-            type="text"
-            onchange="filter(this)"
-            placeholder="search"
-        >
-        <div id="tools"></div>
-    </div>
-    <script>
-        const total = {};
-        const update = (data) => {
-            let inner_html = "";
-            data.forEach(el => {
-                let name = el.name;
-                let url = el.url;
-                let labels = el.labels.join(" ");
-                inner_html += `<div onclick="goto_url(this)">
-    <div class="name">
-        <i>${labels}</i>
-        <div>${name}</div>
-    </div>
-    <a href="${url}" target="_blank">前往</a>
-</div>`;
-            });
-            tools.innerHTML = inner_html + "<br><br>";
-        };
-
-        fetch("config.json", { cache: "no-store" }).then((res) => {
-            if (res.status === 200) return res.json();
-        }).then(data => {
-            total.data = data;
-            update(data.urls);
-        });
-
-        const goto_url = (el) => {
-            el.querySelector("a").click();
-        };
-
-        const filter = (el) => {
-            let keyword = el.value;
-            let data = total.data.urls.filter(d => {
-                return `${d.labels} ${d.name}`.indexOf(keyword) >= 0;
-            });
-            update(data);
-        }
-    </script>
 </body>
 </html>
