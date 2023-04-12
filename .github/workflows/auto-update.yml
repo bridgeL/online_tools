@@ -36,7 +36,7 @@ jobs:
         run : |
           git config user.email autoupdate@users.noreply.github.com
           git config user.name autoupdate
-          git add readme.md
+          git add --all
           git commit -m "Auto Update"
       - name: Push
         uses: ad-m/github-push-action@master
