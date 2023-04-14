@@ -24,10 +24,10 @@
         const total = {};
         const update = (data) => {
             let inner_html = "";
-            data.forEach(el => {
-                let name = el.name;
-                let url = el.url;
-                let labels = el.labels.join(" ");
+            data.forEach(d => {
+                let name = d.name;
+                let url = d.url;
+                let labels = d.labels.join(" ");
                 inner_html += `<div onclick="goto_url(this)">
     <div class="name">
         <i>${labels}</i>
@@ -69,7 +69,7 @@
 
         const filter = (keyword) => {
             let data = total.data.urls.filter(d => {
-                return `${d.labels} ${d.name}`.indexOf(keyword) >= 0;
+                return `${d.labels} ${d.name} ${d.url}`.indexOf(keyword) >= 0;
             });
             update(data);
         };
