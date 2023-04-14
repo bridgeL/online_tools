@@ -46,11 +46,11 @@
             if (k == "q") search.value = v;
         });
 
-        let d = new Date().getTime();
+        let d = Math.floor(new Date().getTime() / 1000);
         let old_d = localStorage.getItem("update_time");
 
         config = {};
-        if (d - old_d >= 3600_000) {
+        if (d - old_d >= 3600) {
             config.cache = "reload";
             localStorage.setItem("update_time", d);
         }
