@@ -38,7 +38,7 @@
         },
         {
             "name": "十二时辰",
-            "url": "games/time/",
+            "url": "games/time",
             "labels": [
                 "游戏"
             ],
@@ -46,7 +46,7 @@
         },
         {
             "name": "2048",
-            "url": "games/2048/",
+            "url": "games/2048",
             "labels": [
                 "游戏"
             ],
@@ -54,7 +54,7 @@
         },
         {
             "name": "倒水",
-            "url": "games/cocktail/",
+            "url": "games/cocktail",
             "labels": [
                 "游戏"
             ],
@@ -70,7 +70,7 @@
         },
         {
             "name": "猜编码",
-            "url": "tools/guess_code/",
+            "url": "tools/guess_code",
             "labels": [
                 "编码",
                 "工具"
