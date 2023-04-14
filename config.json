@@ -1,10 +1,11 @@
 {
     "urls": [
         {
-            "name": "仓库",
+            "name": "Github仓库",
             "url": "https://github.com/bridgeL/online_tools",
             "labels": [
-                "源码"
+                "源码",
+                "站外"
             ],
             "date": "2023/04/10"
         },
@@ -68,7 +69,7 @@
             "date": "2023/04/11"
         },
         {
-            "name": "在线编码转换",
+            "name": "猜编码",
             "url": "tools/guess_code/",
             "labels": [
                 "编码",
@@ -83,7 +84,16 @@
                 "时间戳",
                 "工具"
             ],
-            "date": "2023/04/12"
+            "date": "2023/04/13"
+        },
+        {
+            "name": "猫狸盘搜",
+            "url": "https://www.alipansou.com",
+            "labels": [
+                "资源",
+                "站外"
+            ],
+            "date": "2023/04/14"
         }
     ]
 }
