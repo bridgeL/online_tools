@@ -15,7 +15,11 @@ data = data["urls"]
 
 for d in data:
     labels = " ".join(d["labels"])
-    text += f'[{d["name"]}](https://bridgel.github.io/online_tools/{d["url"]})|{labels}|{d["date"]}\n'
+    if "http" in d["url"]:
+        url = d["url"]
+    else:
+        url = f'https://bridgel.github.io/online_tools/{d["url"]}'
+    text += f'[{d["name"]}]({url})|{labels}|{d["date"]}\n'
 
 tz = timezone(timedelta(hours=8))
 time_s = datetime.now(tz).strftime("%Y/%m/%d %H:%M:%S")
