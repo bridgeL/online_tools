@@ -28,7 +28,7 @@
                 let name = d.name;
                 let url = d.url;
                 let labels = d.labels.join(" ");
-                inner_html += `<div onclick="goto_url(this)">
+                inner_html += `<div onclick="goto_url(this)" title="${url}">
     <div class="name">
         <i>${labels}</i>
         <div>${name}</div>
