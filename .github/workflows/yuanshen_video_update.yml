@@ -3,7 +3,7 @@ run-name: Yuanshen Video Update 🚀
 
 on:
   schedule:
-    - cron:  "0/5 * * * *"
+    - cron: '0/5 * * * *'
 
 
 jobs:
