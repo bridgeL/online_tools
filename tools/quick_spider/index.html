@@ -85,19 +85,24 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     <br>
     <br>
     <script>
+        const split_2 = (text, sep) => {
+            let ts = text.split(sep);
+            return [ts[0], ts.slice(1).join(sep)];
+        };
+        
         const build_code = () => {
             // url, params
             let raw_url = url.value.split("\n")[0].trim();
-            let ts = decodeURI(raw_url).split("?", 2);
+
+            let ts = split_2(decodeURI(raw_url), "?");
             let _url = '"' + ts[0] + '"';
 
             let params = "{}";
             if (ts.length > 1) {
                 params = "{\n";
                 ts[1].split("&").forEach(t => {
-                    let vs = t.split("=", 2);
+                    let vs = split_2(t, "=");
                     let k = vs[0];
-
                     let v = vs[1].replaceAll('"', '\\"');;
                     params += `    "${k}":"${v}",\n`;
                 });
@@ -117,7 +122,8 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
                 headers = "{\n";
                 lines.slice(1).forEach(line => {
-                    let ts = line.split(":");
+                    let ts = split_2(line, ":");
+                    console.log(ts);
                     let k = ts[0].trim();
                     let v = ts[1].trim().replaceAll('"', '\\"');;
                     headers += `    "${k}":"${v}",\n`;

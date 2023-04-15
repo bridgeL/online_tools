@@ -73,19 +73,24 @@
     <br>
     <br>
     <script>
+        const split_2 = (text, sep) => {
+            let ts = text.split(sep);
+            return [ts[0], ts.slice(1).join(sep)];
+        };
+
         const build_code = () => {
             let r = req.value.match(/fetch\("(.*?)",(.*)\)/s);
 
             // url, params
             let raw_url = r[1];
-            let ts = decodeURI(raw_url).split("?", 2);
+            let ts = split_2(decodeURI(raw_url), "?");
             let _url = '"' + ts[0] + '"';
 
             let params = "{}";
             if (ts.length > 1) {
                 params = "{\n";
                 ts[1].split("&").forEach(t => {
-                    let vs = t.split("=", 2);
+                    let vs = split_2(t, "=");
                     let k = vs[0];
                     let v = vs[1].replaceAll('"', '\\"');;
                     params += `    "${k}":"${v}",\n`;
