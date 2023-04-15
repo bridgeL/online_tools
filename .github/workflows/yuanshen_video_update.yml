@@ -2,6 +2,7 @@ name: Yuanshen Video Update
 run-name: Yuanshen Video Update 🚀
 
 on:
+  push
   schedule:
     - cron: '* 0/3 * * *'
 
