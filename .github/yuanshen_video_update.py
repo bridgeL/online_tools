@@ -1,3 +1,4 @@
+import traceback
 import json
 import datetime
 import random
@@ -138,8 +139,8 @@ text = index_path.read_text("utf8")
 text = re.sub(r"<i>更新时间.*?</i>", f"<i>更新时间：{time_s}</i>", text)
 index_path.write_text(text, "utf8")
 
-
 try:
     update()
 except:
+    print(traceback.format_exc())
     print("更新genshin video失败")
