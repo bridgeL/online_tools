@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
+    <title>原神高清视频搜索</title>
+</head>
+<body>
+    <div
+        id="backtop"
+        onclick="backtop()"
+    >👆</div>
+    <div id="main">
+        <input
+            id="search"
+            type="text"
+            onchange="change()"
+            placeholder="search"
+        >
+        <div id="tools"></div>
+    </div>
+    <script>
+        const total = {};
+        const update = (data) => {
+            let inner_html = "";
+            data.forEach(d => {
+                let name = d.title;
+                let url = d.video;
+                let labels = d.time_s;
+                let image = d.image;
+                inner_html += `<div onclick="goto_url(this)">
+    <div class="name">
+        <div class="img_div">
+            <img src="${image}">
+        </div>
+        <br>
+        <i>${labels}</i>
+        <div>${name}</div>
+        <a href="${url}" target="_blank">前往</a>
+    </div>
+</div>`;
+            });
+            tools.innerHTML = inner_html + "<br><br>";
+        };
+
+        document.location.search.slice(1).split("&").forEach(e => {
+            let ts = e.split("=", 2);
+            let k = ts[0];
+            let v = decodeURIComponent(ts[1]);
+            if (k == "q") search.value = v;
+        });
+
+        let d = Math.floor(new Date().getTime() / 1000);
+        let old_d = localStorage.getItem("yuanshen_video");
+
+        config = {};
+        if (d - old_d >= 3600) {
+            config.cache = "reload";
+            localStorage.setItem("yuanshen_video", d);
+        }
+        else config.cache = "default";
+
+        fetch("posts.json", config).then((res) => {
+            if (res.status === 200) return res.json();
+        }).then(data => {
+            total.data = data;
+            filter(search.value);
+        });
+
+        const goto_url = (el) => {
+            el.querySelector("a").click();
+        };
+
+        const filter = (keyword) => {
+            let data = total.data.filter(d => {
+                return `${d.time_s} ${d.title} ${d.video}`.toLowerCase().indexOf(keyword.toLowerCase()) >= 0;
+            });
+            update(data);
+        };
+
+        const change = () => {
+            document.location.search = `?q=${search.value}`;
+        };
+
+        const backtop = () => {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+
+    </script>
+    <style>
+        #backtop {
+            position: fixed;
+            bottom: 2vh;
+            right: 2vw;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 6px;
+        }
+
+        .img_div {
+            border-radius: 6px;
+            border: 5px #fff solid;
+            background-color: #fff;
+        }
+
+        #main {
+            position: absolute;
+            top: 10%;
+            left: 40%;
+            transform: translateX(-50%);
+        }
+
+        #greeting {
+            user-select: none;
+            font-size: 100px;
+            font-weight: 900;
+        }
+
+        #search {
+            width: calc(60vw - 30px);
+            font-size: 16px;
+            margin: 20px 0;
+            border: 1px solid gray;
+            border-radius: 5px;
+            padding: 10px 20px;
+        }
+
+        #tools {
+            width: 60vw;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #tools>div {
+            cursor: pointer;
+            width: calc(60vw - 30px);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid gray;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        @media (min-width: 800px) {
+            #search {
+                width: calc(40vw - 30px);
+            }
+
+            #tools {
+                width: 40vw;
+            }
+
+            #tools>div {
+                width: calc(40vw - 30px);
+            }
+        }
+
+        #tools>div:hover {
+            color: white;
+            background-color: gray;
+        }
+
+        .name i {
+            font-size: 10px;
+        }
+
+        a {
+            display: none;
+        }
+    </style>
+</body>
+</html>
