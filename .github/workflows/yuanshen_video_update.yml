@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: '3.8'
+      - name: python install
         run: pip install requests
       - name: Video Update #Api调用
         run: |
