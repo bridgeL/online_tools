@@ -130,4 +130,16 @@ def update():
         json.dump(old_posts, f, ensure_ascii=False, indent=4)
 
 
-update()
+# index.html
+tz = datetime.timezone(datetime.timedelta(hours=8))
+time_s = datetime.datetime.now(tz).strftime("%Y/%m/%d %H:%M:%S")
+index_path = Path("games", "yuanshen_video", "index.html")
+text = index_path.read_text("utf8")
+text = re.sub(r"<i>更新时间.*?</i>", f"<i>更新时间：{time_s}</i>", text)
+index_path.write_text(text, "utf8")
+
+
+try:
+    update()
+except:
+    print("更新genshin video失败")
