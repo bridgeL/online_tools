@@ -2,9 +2,6 @@ name: Yuanshen Video Update
 run-name: Yuanshen Video Update 🚀
 
 on:
-  push:
-    branches:
-      - 'main'
   schedule:
     - cron: '* 0/3 * * *'
 
@@ -22,7 +19,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: '3.8'
-      - name: Auto Update #Api调用
+      - name: Video Update #Api调用
         run: |
           python .github/yuanshen_video_update.py
       - name: Push to Git
