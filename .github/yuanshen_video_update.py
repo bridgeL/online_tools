@@ -37,10 +37,6 @@ def get_pids(page=1):
         url=url,
         headers=headers,
         params=params,
-        proxies={
-            "http": "http://127.0.0.1:7890",
-            "https": "http://127.0.0.1:7890",
-        },
         timeout=5,
     )
     data = res.json()["data"]["list"]
@@ -63,10 +59,6 @@ def get_post(pid):
         url=url,
         headers=headers,
         params=params,
-        proxies={
-            "http": "http://127.0.0.1:7890",
-            "https": "http://127.0.0.1:7890",
-        },
         timeout=5,
     )
     data = res.json()["data"]
