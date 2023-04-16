@@ -11,7 +11,6 @@ text += "## 功能一览\n\n功能|标签|更新日期\n-|-|-\n"
 
 urls_path = Path("config.json")
 data = json.loads(urls_path.read_text("utf8"))
-data = data["urls"]
 
 for d in data:
     labels = " ".join(d["labels"])
