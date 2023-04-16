@@ -14,7 +14,11 @@
         onclick="backtop()"
     >👆</div>
     <div id="main">
-        <i>更新时间：2023/04/15 20:17:44</i>
+        <i>更新时间：
+
+            <span id="time_s">
+
+            </span></i>
         <br>
         <input
             id="search"
@@ -70,6 +74,12 @@
         }).then(data => {
             total.data = data;
             filter(search.value);
+        });
+
+        fetch("timestamp.txt", config).then((res) => {
+            if (res.status === 200) return res.text();
+        }).then(data => {
+            time_s.innerHTML = data;
         });
 
         const goto_url = (el) => {
