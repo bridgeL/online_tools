@@ -26,8 +26,4 @@ time_s = datetime.now(tz).strftime("%Y/%m/%d %H:%M:%S")
 text = re.sub(r"<i>更新时间.*?</i>", f"<i>更新时间：{time_s}</i>", text)
 readme_path.write_text(text, "utf8")
 
-# index.html
-index_path = Path("index.html")
-text = index_path.read_text("utf8")
-text = re.sub(r"<i>更新时间.*?</i>", f"<i>更新时间：{time_s}</i>", text)
-index_path.write_text(text, "utf8")
+Path("timestamp.txt").write_text(time_s, "utf8")

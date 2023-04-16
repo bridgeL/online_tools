@@ -131,13 +131,10 @@ def update():
         json.dump(old_posts, f, ensure_ascii=False, indent=4)
 
 
-# index.html
+# timestamp.txt
 tz = datetime.timezone(datetime.timedelta(hours=8))
 time_s = datetime.datetime.now(tz).strftime("%Y/%m/%d %H:%M:%S")
-index_path = Path("games", "yuanshen_video", "index.html")
-text = index_path.read_text("utf8")
-text = re.sub(r"<i>更新时间.*?</i>", f"<i>更新时间：{time_s}</i>", text)
-index_path.write_text(text, "utf8")
+Path("games", "yuanshen_video", "timestamp.txt").write_text(time_s, "utf8")
 
 try:
     update()

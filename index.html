@@ -10,7 +10,11 @@
 </head>
 <body>
     <div id="main">
-        <i>更新时间：2023/04/15 21:01:23</i>
+        <i>更新时间：
+
+            <span id="time_s">
+
+            </span></i>
         <div id="greeting">hi.</div>
         <input
             id="search"
@@ -63,12 +67,18 @@
             filter(search.value);
         });
 
+        fetch("timestamp.txt", config).then((res) => {
+            if (res.status === 200) return res.text();
+        }).then(data => {
+            time_s.innerHTML = data;
+        });
+
         const goto_url = (el) => {
             el.querySelector("a").click();
         };
 
         const filter = (keyword) => {
-            let data = total.data.urls.filter(d => {
+            let data = total.data.filter(d => {
                 return `${d.labels} ${d.name} ${d.url}`.indexOf(keyword) >= 0;
             });
             update(data);
