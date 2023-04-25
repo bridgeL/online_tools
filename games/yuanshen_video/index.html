@@ -97,8 +97,14 @@
         };
 
         const filter = (keyword) => {
+            let ks = keyword.split(" ").map(k => k.toLowerCase());
             let data = total.data.filter(d => {
-                return `${d.time_s} ${d.title} ${d.video}`.toLowerCase().indexOf(keyword.toLowerCase()) >= 0;
+                let s = `${d.time_s} ${d.title} ${d.video}`.toLowerCase();
+                for (let i = 0; i < ks.length; i++) {
+                    let k = ks[i];
+                    if (s.indexOf(k) >= 0) return true;
+                }
+                return false;
             });
             update(data);
         };
