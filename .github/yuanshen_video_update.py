@@ -115,6 +115,7 @@ def update():
 
     old_pids.extend(pids)
     old_pids.sort(reverse=True)
+    old_pids.sort(key=lambda x: len(x), reverse=True)
     old_pids = old_pids[:20]
     with path.open("w+", encoding="utf8") as f:
         json.dump(old_pids, f, ensure_ascii=False, indent=4)

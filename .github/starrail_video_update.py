@@ -20,7 +20,7 @@ user_agents = [
 ]
 
 
-def get_pids(page=1):
+def get_posts(page=1):
     url = "https://api-takumi-static.mihoyo.com/content_v2_user/app/1963de8dc19e461c/getContentList"
     headers = {
         "accept": "application/json, text/plain, */*",
@@ -29,11 +29,11 @@ def get_pids(page=1):
         "user-agent": random.choice(user_agents)
     }
     params = {
-        "iPage":str(page),
-        "iPageSize":"5",
-        "sLangKey":"zh-cn",
-        "isPreview":"0",
-        "iChanId":"256",
+        "iPage": str(page),
+        "iPageSize": "5",
+        "sLangKey": "zh-cn",
+        "isPreview": "0",
+        "iChanId": "256",
     }
 
     res = requests.get(
@@ -43,7 +43,8 @@ def get_pids(page=1):
         timeout=5,
     )
     data = res.json()["data"]["list"]
-    return data
+    return [get_post(d) for d in data]
+
 
 def get_post(data):
     # 时间戳
@@ -52,7 +53,7 @@ def get_post(data):
     time_i = int(dt.timestamp())
 
     # pid、标题
-    pid = data["iInfoId"]
+    pid = str(data["iInfoId"])
     title = data["sTitle"]
 
     # 视频 + 封面
@@ -74,8 +75,7 @@ def get_post(data):
 
 
 def update():
-    pids = get_pids(1)
-    print("pids", pids)
+    posts = get_posts(1)
 
     old_pids = []
     path = Path("games", "starrail_video", "pids.json")
@@ -83,18 +83,14 @@ def update():
         with path.open("r", encoding="utf8") as f:
             old_pids = json.load(f)
 
-    pids = [pid for pid in pids if pid not in old_pids]
+    print(old_pids, posts)
+    posts = [p for p in posts if p["pid"] not in old_pids]
+    pids = [p["pid"] for p in posts]
     print("new_pids", pids)
-
-    posts = []
-    for pid in pids:
-        time.sleep(5)
-        post = get_post(pid)
-        if post:
-            posts.append(post)
 
     old_pids.extend(pids)
     old_pids.sort(reverse=True)
+    old_pids.sort(key=lambda x: len(x), reverse=True)
     old_pids = old_pids[:20]
     with path.open("w+", encoding="utf8") as f:
         json.dump(old_pids, f, ensure_ascii=False, indent=4)
