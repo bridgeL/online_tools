@@ -21,17 +21,19 @@ user_agents = [
 
 
 def get_pids(page=1):
-    url = "https://content-static.mihoyo.com/content/ysCn/getContentList"
+    url = "https://api-takumi-static.mihoyo.com/content_v2_user/app/1963de8dc19e461c/getContentList"
     headers = {
         "accept": "application/json, text/plain, */*",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "referrer": "https://ys.mihoyo.com/",
+        "referrer": "https://sr.mihoyo.com/",
         "user-agent": random.choice(user_agents)
     }
     params = {
-        "pageSize": "10",
-        "pageNum": str(page),
-        "channelId": "11",
+        "iPage":str(page),
+        "iPageSize":"5",
+        "sLangKey":"zh-cn",
+        "isPreview":"0",
+        "iChanId":"256",
     }
 
     res = requests.get(
@@ -41,53 +43,31 @@ def get_pids(page=1):
         timeout=5,
     )
     data = res.json()["data"]["list"]
-    return [d["id"] for d in data]
+    return data
 
-
-def get_post(pid):
-    url = "https://content-static.mihoyo.com/content/ysCn/getContent"
-    headers = {
-        "accept": "application/json, text/plain, */*",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "referrer": "https://ys.mihoyo.com/",
-        "user-agent": random.choice(user_agents)
-    }
-    params = {
-        "contentId": str(pid),
-        "around": "1",
-    }
-    res = requests.get(
-        url=url,
-        headers=headers,
-        params=params,
-        timeout=5,
-    )
-    data = res.json()["data"]
-
+def get_post(data):
     # 时间戳
-    time_s = data["start_time"]
+    time_s = data["dtCreateTime"]
     dt = datetime.datetime.strptime(time_s, "%Y-%m-%d %H:%M:%S")
     time_i = int(dt.timestamp())
 
+    # pid、标题
+    pid = data["iInfoId"]
+    title = data["sTitle"]
+
     # 视频 + 封面
-    content = data["content"]
-    r = re.search(r"<video(.*?)>.*?</video>", content)
-    if not r:
-        return
-    content = r.group(1)
-    params = {}
-    for r in re.finditer(r"(.*?)=\"(.*?)\"", content):
-        k = r.group(1).strip()
-        v = r.group(2).strip()
-        params[k] = v
+    content = data["sContent"]
+    r = re.search(r"<video.*?src=\"(.*?)\".*?</video>", content)
+    video = r.group(1)
+    image = json.loads(data["sExt"])["news-poster"][0]["url"]
 
     post = {
         "pid": pid,
-        "title": data["title"],
+        "title": title,
         "time_s": time_s,
         "time_i": time_i,
-        "video": params["src"],
-        "image": params["poster"]
+        "video": video,
+        "image": image
     }
     print(post)
     return post
@@ -98,7 +78,7 @@ def update():
     print("pids", pids)
 
     old_pids = []
-    path = Path("games", "yuanshen_video", "pids.json")
+    path = Path("games", "starrail_video", "pids.json")
     if path.exists():
         with path.open("r", encoding="utf8") as f:
             old_pids = json.load(f)
@@ -120,7 +100,7 @@ def update():
         json.dump(old_pids, f, ensure_ascii=False, indent=4)
 
     old_posts = []
-    path = Path("games", "yuanshen_video", "posts.json")
+    path = Path("games", "starrail_video", "posts.json")
     if path.exists():
         with path.open("r", encoding="utf8") as f:
             old_posts = json.load(f)
@@ -134,10 +114,10 @@ def update():
 # timestamp.txt
 tz = datetime.timezone(datetime.timedelta(hours=8))
 time_s = datetime.datetime.now(tz).strftime("%Y/%m/%d %H:%M:%S")
-Path("games", "yuanshen_video", "timestamp.txt").write_text(time_s, "utf8")
+Path("games", "starrail_video", "timestamp.txt").write_text(time_s, "utf8")
 
 try:
     update()
 except:
     print(traceback.format_exc())
-    print("更新yuanshen video失败")
+    print("更新starrail video失败")
