@@ -29,14 +29,15 @@
         <div id="tools"></div>
     </div>
     <script>
-        setInterval(() => {
+        document.addEventListener("scroll", () => {
             let imgs = document.querySelectorAll("img");
             let a = document.documentElement.scrollTop;
             let b = a + document.documentElement.clientHeight;
             imgs.forEach(img => {
                 if (!img.src && img.offsetTop >= a && img.offsetTop < b) img.src = img.getAttribute("xsrc");
             });
-        }, 100);
+        });
+
         const total = {};
         const update = (data) => {
             let inner_html = "";
