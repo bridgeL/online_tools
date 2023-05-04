@@ -1,6 +1,6 @@
 # 在线实用工具
 
-<i>更新时间：2023/05/04 19:42:26</i>
+<i>更新时间：2023/05/04 19:43:08</i>
 
 - 无广告
 - 简单快捷
@@ -26,3 +26,4 @@
 [时间戳](https://bridgel.github.io/online_tools/tools/timestamp)|时间戳 工具|2023/04/13
 [猫狸盘搜](https://www.alipansou.com)|资源 链接 网盘|2023/04/14
 [原神官网视频搜索器](https://bridgel.github.io/online_tools/games/yuanshen_video)|资源 游戏|2023/04/15
+[崩坏：星穹铁道官网视频搜索器](https://bridgel.github.io/online_tools/games/starrail_video)|资源 游戏|2023/05/04
