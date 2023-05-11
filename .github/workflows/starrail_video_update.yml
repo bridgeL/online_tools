@@ -1,7 +1,8 @@
 name: Starrail Video Update
 run-name: Starrail Video Update 🚀
 
-on:
+# there are something wrong, close the action temporarily
+-on:
   schedule:
     - cron: '0 0/3 * * *'
 
