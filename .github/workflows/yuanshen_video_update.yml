@@ -1,7 +1,8 @@
 name: Yuanshen Video Update
 run-name: Yuanshen Video Update 🚀
 
-on:
+# there are something wrong, close the action temporarily
+-on:
   schedule:
     - cron: '0 0/3 * * *'
 
