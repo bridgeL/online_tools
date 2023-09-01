@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <div>游戏规则：两人共同查看题目，并轮流说出一个字组成词语或短语来回答，要求迅速连贯</div>
+    <div>游戏规则：两人共同查看题目，并轮流说出一个字组成词语或短语来回答，要求迅速连贯；第一个字将有额外5秒思考时间，每说完一个字按一下切换</div>
     <h1 id="question_bar" style="color: green;">说出 ? 个字的 ???</h1>
     <div>
         <span>设置间隔</span>
@@ -110,28 +110,29 @@
         change_player();
     }
 
-    var time_left = 0;
+    var time_left = 0.0;
 
     function update() {
         if (question_end) return;
-        time_left -= 1;
+        time_left -= 0.02;
         if (time_left < 0) {
             question_end = 1;
             question_bar.style.color = "red";
         }
-        time_left_bar.innerHTML = (time_left / 10.0).toFixed(1);
+        time_left_bar.innerHTML = time_left.toFixed(2);
     }
 
     var color_i = 0;
     var question_end = 1;
 
-    setInterval(update, 100);
+    setInterval(update, 50);
 
     function change_player() {
         if (question_end) return;
 
-        time_left = input_bar.value * 10.0;
-        time_left_bar.innerHTML = (time_left / 10.0).toFixed(1);
+        time_left = input_bar.value * 1.0;
+        if (question_i == 0) time_left += 5;
+        time_left_bar.innerHTML = time_left.toFixed(2);
         color_i += 1;
         color_i %= COLORS.length;
         var color = COLORS[color_i];
