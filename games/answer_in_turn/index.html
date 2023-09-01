@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>默契游戏</title>
+    <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
+</head>
+
+<body>
+    <h1 id="question_bar" style="color: green;">说出 ? 个字的 ???</h1>
+    <div>
+        <span>设置间隔</span>
+        <input id="input_bar" type="number" value="2">
+    </div>
+    <div id="time_left_all_bar" style="color: black;">
+        <span>第</span>
+        <span id="question_i_bar">0</span>
+        <span>字，剩余</span>
+        <span id="time_left_bar">0</span>
+        <span>秒</span>
+    </div>
+    <div id="control">
+        <button onclick="generate_question()">出题(A)</button>
+        <button onclick="change_player()">切换玩家(D)</button>
+    </div>
+</body>
+
+<style>
+    body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    button {
+        font-size: 20px;
+        width: 150px;
+        height: 100px;
+    }
+
+    #control {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #time_left_bar,
+    #question_i_bar {
+        font-size: 40px;
+    }
+
+    #time_left_all_bar {
+        padding: 3px 20px;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    const NUMS = [
+        2, 3, 4, 5, 6
+    ];
+
+    const NAMES = [
+        "动画",
+        "美食",
+        "交通工具",
+        "图书",
+        "动漫人物",
+        "歌名",
+        "国家",
+        "作家",
+        "古诗",
+        "玩具"
+    ];
+
+    const COLORS = [
+        "#7F6B5C",
+        "#BF6F6F",
+        "#A97FDF",
+        "#7091B5",
+        "#78DF8E"
+    ];
+
+    function select(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
+
+    var question_i = 0;
+    var question_n = 0;
+
+    function generate_question() {
+        var n = select(NUMS);
+        var name = select(NAMES);
+        question_n = n;
+        question_i = 0;
+        question_bar.innerHTML = `说出 ${n} 个字的 ${name}`;
+        question_bar.style.color = "black";
+        question_i_bar.innerHTML = question_i + 1;
+        question_end = 0;
+        change_player();
+    }
+
+    var time_left = 0;
+
+    function update() {
+        if (question_end) return;
+        time_left -= 1;
+        if (time_left < 0) {
+            question_end = 1;
+            question_bar.style.color = "red";
+        }
+        time_left_bar.innerHTML = (time_left / 10.0).toFixed(1);
+    }
+
+    var color_i = 0;
+    var question_end = 1;
+
+    setInterval(update, 100);
+
+    function change_player() {
+        if (question_end) return;
+
+        time_left = input_bar.value * 10.0;
+        time_left_bar.innerHTML = (time_left / 10.0).toFixed(1);
+        color_i += 1;
+        color_i %= COLORS.length;
+        var color = COLORS[color_i];
+        time_left_all_bar.style.color = color;
+
+        question_i += 1;
+        if (question_i > question_n) {
+            question_end = 1;
+            question_bar.style.color = "green";
+            question_i_bar.innerHTML = 0;
+            party.confetti(control, { count: 100 });
+        }
+        else {
+            question_i_bar.innerHTML = question_i;
+        }
+    }
+
+    document.body.addEventListener("keyup", function (event) {
+        if (event.code == 'KeyA') generate_question();
+        if (event.code == 'KeyD') change_player();
+    })
+
+
+</script>
+
+</html>
