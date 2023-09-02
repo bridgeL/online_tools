@@ -8,7 +8,10 @@
 </head>
 
 <body>
-    <input type="number" id="div_n" value="20">
+    <div>
+        <input type="number" id="div_n" value="20">
+        <button onclick="switch_mode()">切换模式</button>
+    </div>
     <div>
         <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
@@ -17,9 +20,15 @@
         <button onclick="start()">开始</button>
     </div>
     <div id="div_msg"></div>
+    <div id="div_msg_big"></div>
 </body>
 
 <style>
+    body {
+        background-color: black;
+        color: white;
+    }
+
     button {
         font-size: 20px;
     }
@@ -41,15 +50,32 @@
 
     .now {
         font-weight: bold;
-        color: black;
+        color: inherit;
+        font-size: 50px;
     }
 
     #div_msg {
         user-select: none;
     }
+
+    #div_msg span {
+        cursor: pointer;
+    }
+
+    #div_msg_big {
+        user-select: none;
+        font-size: 40px;
+        rotate: 90;
+    }
 </style>
 
 <script>
+    var mode = 0;
+
+    function switch_mode() {
+        mode = mode == 0 ? 1 : 0;
+    }
+
     var DATA = [];
 
     fetch("./data.json")
@@ -89,27 +115,40 @@
             input_format();
         }
 
-        let html = "";
-        let first = 1;
-        let i = DATA.findIndex(d => d.begin > dtime);
-        let n = Math.floor(Number(div_n.value) / 2);
-        let j = i - n;
-        let data;
-        if (j < 0)
-            data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
-        else
-            data = DATA.slice(i - n, i + n);
+        if (mode == 0) {
+            let html = "";
+            let first = 1;
+            let i = DATA.findIndex(d => d.begin > dtime);
+            let n = Math.floor(Number(div_n.value) / 2);
+            let j = i - n;
+            let data;
+            if (j < 0)
+                data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
+            else
+                data = DATA.slice(i - n, i + n);
 
-        data.forEach(d => {
-            let class_name = "";
-            if (d.begin <= dtime && d.end > dtime) class_name = "now";
-            if (first && d.begin > dtime) {
-                first = 0;
-                html += "<hr>";
-            }
-            html += `<div class="subtitle ${class_name}"><span onclick="jump(${d.begin})">[${d.num}/${DATA.length}]</span> ${d.msg}</div>`;
-        })
-        div_msg.innerHTML = html;
+            data.forEach(d => {
+                let class_name = "";
+                if (d.begin <= dtime && d.end > dtime) class_name = "now";
+                if (first && d.begin > dtime) {
+                    first = 0;
+                    html += "<hr>";
+                }
+                html += `<div class="subtitle ${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>`;
+            })
+            div_msg.innerHTML = html;
+        }
+        else {
+            div_msg.innerHTML = "";
+        }
+
+        if (mode == 1) {
+            div_msg_big.innerHTML = DATA.find(d => d.begin > dtime).msg;
+            div_msg_big.style.fontSize = `${div_n.value}px`;
+        }
+        else {
+            div_msg_big.innerHTML = "";
+        }
     }
 
     function update() {
@@ -129,34 +168,12 @@
     }
 
     function jump(d) {
+        console.log("???")
         dtime = d;
         let time = get_timestamp();
         start_time = time - d;
         update_real();
     }
-
-    // var pos = { x: 0, y: 0 };
-    // div_msg.addEventListener("touchstart", event => {
-    //     pos.y = event.targetTouches[0].clientY;
-    //     pause = 1;
-    // });
-    // div_msg.addEventListener("touchend", event => {
-    //     pos.y = 0;
-    //     pause = 0;
-    // });
-    // div_msg.addEventListener("touchmove", event => {
-    //     console.log(event);
-    //     if (pos.y != 0) {
-    //         let dy = event.targetTouches[0].clientY - pos.y;
-    //         if (dy > 10 || dy < -10) {
-    //             pos.y = event.clientY;
-    //             dtime -= dy * 1000;
-    //             let time = get_timestamp();
-    //             start_time = time - dtime;
-    //             update_real();
-    //         }
-    //     }
-    // })
 </script>
 
 </html>
