@@ -23,7 +23,6 @@
 <style>
     body {
         background-color: black;
-        color: white;
     }
 
     button {
@@ -35,18 +34,15 @@
         font-size: 20px;
     }
 
-    .subtitle {
-        color: gray;
-    }
-
     .now {
         font-weight: bold;
-        color: inherit;
+        color: white;
         font-size: 50px;
     }
 
     #div_msg {
         user-select: none;
+        color: gray;
     }
 </style>
 
@@ -105,7 +101,8 @@
                 first = 0;
                 html += "<hr>";
             }
-            html += `<div class="subtitle ${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>`;
+            html += `<div class="${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>
+            <div ondblclick="jump(${d.begin})">${d.en}</div>`;
         })
         div_msg.innerHTML = html;
 
