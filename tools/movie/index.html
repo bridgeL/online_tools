@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <input type="number" id="div_n" value="10">
+    <input type="number" id="div_n" value="20">
     <div>
         <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
@@ -69,7 +69,7 @@
     }
 
     function start() {
-        start_time = get_timestamp() - 42_000;
+        start_time = get_timestamp();
         pause = 0;
     }
 
@@ -92,7 +92,7 @@
         let html = "";
         let first = 1;
         let i = DATA.findIndex(d => d.begin > dtime);
-        let n = Number(div_n.value);
+        let n = Math.floor(Number(div_n.value) / 2);
         let j = i - n;
         let data;
         if (j < 0)
