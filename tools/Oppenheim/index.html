@@ -12,7 +12,6 @@
         <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_s" onchange="change()" onfocus="lock()" onblur="unlock()">
-        <input type="text" id="div_ms" onchange="change()" onfocus="lock()" onblur="unlock()">
         <button onclick="start()">开始</button>
         <button onclick="pause_f()">暂停</button>
         <input type="number" id="div_n" value="10">
@@ -85,14 +84,12 @@
         div_h.value = ("00" + div_h.value).slice(-2);
         div_m.value = ("00" + div_m.value).slice(-2);
         div_s.value = ("00" + div_s.value).slice(-2);
-        div_ms.value = ("00" + div_ms.value).slice(-2);
     }
 
     function update_real() {
         div_h.value = Math.floor(dtime / 3600_000);
         div_m.value = Math.floor((dtime % 3600_000) / 60_000);
         div_s.value = Math.floor((dtime % 60_000) / 1000);
-        div_ms.value = Math.floor(dtime % 1000);
         input_format();
 
         let html = "";
