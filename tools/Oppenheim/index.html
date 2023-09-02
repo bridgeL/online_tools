@@ -14,6 +14,7 @@
         <input type="text" id="div_s" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_ms" onchange="change()" onfocus="lock()" onblur="unlock()">
         <button onclick="start()">开始</button>
+        <button onclick="pause_f()">暂停</button>
         <input type="number" id="div_n" value="10">
     </div>
     <div id="div_msg"></div>
@@ -73,6 +74,10 @@
         pause = 0;
     }
 
+    function pause_f() {
+        pause = pause ? 0 : 1;
+    }
+
     function input_format() {
         div_h.value = ("00" + div_h.value).slice(-2);
         div_m.value = ("00" + div_m.value).slice(-2);
@@ -81,24 +86,17 @@
     }
 
     function update_real() {
-        if (!locked) {
-            div_h.value = Math.floor(dtime / 3600_000);
-            div_m.value = Math.floor((dtime % 3600_000) / 60_000);
-            div_s.value = Math.floor((dtime % 60_000) / 1000);
-            div_ms.value = Math.floor(dtime % 1000);
-            input_format();
-        }
+        div_h.value = Math.floor(dtime / 3600_000);
+        div_m.value = Math.floor((dtime % 3600_000) / 60_000);
+        div_s.value = Math.floor((dtime % 60_000) / 1000);
+        div_ms.value = Math.floor(dtime % 1000);
+        input_format();
 
         let html = "";
         let first = 1;
         let i = DATA.findIndex(d => d.begin > dtime);
         let n = Math.floor(Number(div_n.value) / 2);
-        let j = i - n;
-        let data;
-        if (j < 0)
-            data = new Array(-j).fill({ begin: 0, end: 0, msg: "-"}).concat(DATA.slice(0, i + n));
-        else
-            data = DATA.slice(i - n, i + n);
+        let data = DATA.slice(i - n < 0 ? 0 : i - n, i + n);
 
         data.forEach(d => {
             let class_name = "";
@@ -114,7 +112,7 @@
     }
 
     function update() {
-        if (!start_time || pause) return;
+        if (!start_time || pause || locked) return;
         let time = get_timestamp();
         dtime = time - start_time;
         update_real();
