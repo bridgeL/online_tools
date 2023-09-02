@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div>
+    <div id="nav">
         <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_s" onchange="change()" onfocus="lock()" onblur="unlock()">
@@ -23,6 +23,12 @@
 <style>
     body {
         background-color: black;
+    }
+
+    #nav{
+        position: fixed;
+        top: 10px;
+        left: 0;
     }
 
     button {
@@ -41,6 +47,7 @@
     }
 
     #div_msg {
+        margin-top: 50px;
         user-select: none;
         color: gray;
     }
