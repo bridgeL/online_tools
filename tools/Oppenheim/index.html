@@ -125,23 +125,27 @@
         input_format();
 
         let html = "";
-        let first = 1;
         let i = DATA.findIndex(d => d.begin > dtime);
-        let n = Math.floor(Number(div_n.value) / 2);
-        let data = DATA.slice(i - n < 0 ? 0 : i - n, i + n);
-        let json = JSON.stringify(data);
+        if (i < 0) i = DATA.length;
+        let n = Number(div_n.value);
+        let p = Math.floor(i / n) * n - 2;
+        let q = p + n + 2;
+        if (p < 0) p = 0;
+
+        let data = DATA.slice(p, q);
+        let first = 1;
+
+        let json = JSON.stringify(data) + i;
         if (json == old_json) return;
         old_json = json;
 
         data.forEach(d => {
-            let class_name = "";
-            if (d.begin <= dtime && d.end > dtime) class_name = "now";
+            let class_name = (d.begin <= dtime && d.end > dtime) ? "now" : "";
+            let _class_name = d.num % 2 ? "even" : "";
             if (first && d.begin > dtime) {
                 first = 0;
                 html += "<hr>";
             }
-            let _class_name = "";
-            if (d.num % 2) _class_name = "even";
             html += `
 <div class="${_class_name}">
     <div class="${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>
