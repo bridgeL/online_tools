@@ -123,7 +123,7 @@
 
     function change() {
         input_format();
-        let dtime = Number(div_h.value) * 3600_000 + Number(div_m.value) * 60_000 + Number(div_s.value) * 1000 + Number(div_ms.value);
+        let dtime = Number(div_h.value) * 3600_000 + Number(div_m.value) * 60_000 + Number(div_s.value) * 1000;
         let time = get_timestamp();
         start_time = time - dtime;
     }
