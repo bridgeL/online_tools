@@ -9,18 +9,14 @@
 
 <body>
     <div>
-        <input type="number" id="div_n" value="20">
-        <button onclick="switch_mode()">切换模式</button>
-    </div>
-    <div>
         <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_s" onchange="change()" onfocus="lock()" onblur="unlock()">
         <input type="text" id="div_ms" onchange="change()" onfocus="lock()" onblur="unlock()">
         <button onclick="start()">开始</button>
+        <input type="number" id="div_n" value="10">
     </div>
     <div id="div_msg"></div>
-    <div id="div_msg_big"></div>
 </body>
 
 <style>
@@ -34,18 +30,12 @@
     }
 
     input {
-        width: 15vw;
+        width: 10vw;
         font-size: 20px;
     }
 
     .subtitle {
         color: gray;
-    }
-
-    .subtitle span {
-        font-size: 10px;
-        text-decoration: underline;
-        color: blue;
     }
 
     .now {
@@ -57,25 +47,9 @@
     #div_msg {
         user-select: none;
     }
-
-    #div_msg span {
-        cursor: pointer;
-    }
-
-    #div_msg_big {
-        user-select: none;
-        font-size: 40px;
-        rotate: 90;
-    }
 </style>
 
 <script>
-    var mode = 0;
-
-    function switch_mode() {
-        mode = mode == 0 ? 1 : 0;
-    }
-
     var DATA = [];
 
     fetch("./data.json")
@@ -115,40 +89,28 @@
             input_format();
         }
 
-        if (mode == 0) {
-            let html = "";
-            let first = 1;
-            let i = DATA.findIndex(d => d.begin > dtime);
-            let n = Math.floor(Number(div_n.value) / 2);
-            let j = i - n;
-            let data;
-            if (j < 0)
-                data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
-            else
-                data = DATA.slice(i - n, i + n);
+        let html = "";
+        let first = 1;
+        let i = DATA.findIndex(d => d.begin > dtime);
+        let n = Math.floor(Number(div_n.value) / 2);
+        let j = i - n;
+        let data;
+        if (j < 0)
+            data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
+        else
+            data = DATA.slice(i - n, i + n);
 
-            data.forEach(d => {
-                let class_name = "";
-                if (d.begin <= dtime && d.end > dtime) class_name = "now";
-                if (first && d.begin > dtime) {
-                    first = 0;
-                    html += "<hr>";
-                }
-                html += `<div class="subtitle ${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>`;
-            })
-            div_msg.innerHTML = html;
-        }
-        else {
-            div_msg.innerHTML = "";
-        }
+        data.forEach(d => {
+            let class_name = "";
+            if (d.begin <= dtime && d.end > dtime) class_name = "now";
+            if (first && d.begin > dtime) {
+                first = 0;
+                html += "<hr>";
+            }
+            html += `<div class="subtitle ${class_name}" ondblclick="jump(${d.begin})">${d.msg}</div>`;
+        })
+        div_msg.innerHTML = html;
 
-        if (mode == 1) {
-            div_msg_big.innerHTML = DATA.find(d => d.begin > dtime).msg;
-            div_msg_big.style.fontSize = `${div_n.value}px`;
-        }
-        else {
-            div_msg_big.innerHTML = "";
-        }
     }
 
     function update() {
@@ -168,7 +130,6 @@
     }
 
     function jump(d) {
-        console.log("???")
         dtime = d;
         let time = get_timestamp();
         start_time = time - d;
