@@ -96,7 +96,7 @@
         let j = i - n;
         let data;
         if (j < 0)
-            data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
+            data = new Array(-j).fill({ begin: 0, end: 0, msg: "-", num: 0 }).concat(DATA.slice(0, i + n));
         else
             data = DATA.slice(i - n, i + n);
 
