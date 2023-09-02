@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>奥本海默同步字幕</title>
+</head>
+
+<body>
+    <input type="number" id="div_n" value="10">
+    <div>
+        <input type="text" id="div_h" onchange="change()" onfocus="lock()" onblur="unlock()">
+        <input type="text" id="div_m" onchange="change()" onfocus="lock()" onblur="unlock()">
+        <input type="text" id="div_s" onchange="change()" onfocus="lock()" onblur="unlock()">
+        <input type="text" id="div_ms" onchange="change()" onfocus="lock()" onblur="unlock()">
+        <button onclick="start()">开始</button>
+    </div>
+    <div id="div_msg"></div>
+</body>
+
+<style>
+    button {
+        font-size: 20px;
+    }
+
+    input {
+        width: 15vw;
+        font-size: 20px;
+    }
+
+    .subtitle {
+        color: gray;
+    }
+
+    .subtitle span {
+        font-size: 10px;
+        text-decoration: underline;
+        color: blue;
+    }
+
+    .now {
+        font-weight: bold;
+        color: black;
+    }
+
+    #div_msg {
+        user-select: none;
+    }
+</style>
+
+<script>
+    var DATA = [];
+
+    fetch("./data.json")
+        .then((response) => response.json())
+        .then(json => DATA = json);
+
+    var start_time = 0;
+    var dtime = 0;
+    var locked = 0;
+    var pause = 0;
+
+    function lock() { locked = 1; }
+    function unlock() { locked = 0; }
+
+    function get_timestamp() {
+        return new Date().valueOf();
+    }
+
+    function start() {
+        start_time = get_timestamp() - 42_000;
+        pause = 0;
+    }
+
+    function input_format() {
+        div_h.value = ("00" + div_h.value).slice(-2);
+        div_m.value = ("00" + div_m.value).slice(-2);
+        div_s.value = ("00" + div_s.value).slice(-2);
+        div_ms.value = ("000" + div_ms.value).slice(-3);
+    }
+
+    function update_real() {
+        if (!locked) {
+            div_h.value = Math.floor(dtime / 3600_000);
+            div_m.value = Math.floor((dtime % 3600_000) / 60_000);
+            div_s.value = Math.floor((dtime % 60_000) / 1000);
+            div_ms.value = Math.floor(dtime % 1000);
+            input_format();
+        }
+
+        let html = "";
+        let first = 1;
+        let i = DATA.findIndex(d => d.begin > dtime);
+        let n = Number(div_n.value);
+        let j = i - n;
+        let data;
+        if (j < 0)
+            data = new Array(-j).fill({ begin: 0, end: 0, msg: "", num: 0 }).concat(DATA.slice(0, i + n));
+        else
+            data = DATA.slice(i - n, i + n);
+
+        data.forEach(d => {
+            let class_name = "";
+            if (d.begin <= dtime && d.end > dtime) class_name = "now";
+            if (first && d.begin > dtime) {
+                first = 0;
+                html += "<hr>";
+            }
+            html += `<div class="subtitle ${class_name}"><span onclick="jump(${d.begin})">[${d.num}/${DATA.length}]</span> ${d.msg}</div>`;
+        })
+        div_msg.innerHTML = html;
+    }
+
+    function update() {
+        if (!start_time || pause) return;
+        let time = get_timestamp();
+        dtime = time - start_time;
+        update_real();
+    }
+
+    setInterval(update, 100);
+
+    function change() {
+        input_format();
+        let dtime = Number(div_h.value) * 3600_000 + Number(div_m.value) * 60_000 + Number(div_s.value) * 1000 + Number(div_ms.value);
+        let time = get_timestamp();
+        start_time = time - dtime;
+    }
+
+    function jump(d) {
+        dtime = d;
+        let time = get_timestamp();
+        start_time = time - d;
+        update_real();
+    }
+
+    // var pos = { x: 0, y: 0 };
+    // div_msg.addEventListener("touchstart", event => {
+    //     pos.y = event.targetTouches[0].clientY;
+    //     pause = 1;
+    // });
+    // div_msg.addEventListener("touchend", event => {
+    //     pos.y = 0;
+    //     pause = 0;
+    // });
+    // div_msg.addEventListener("touchmove", event => {
+    //     console.log(event);
+    //     if (pos.y != 0) {
+    //         let dy = event.targetTouches[0].clientY - pos.y;
+    //         if (dy > 10 || dy < -10) {
+    //             pos.y = event.clientY;
+    //             dtime -= dy * 1000;
+    //             let time = get_timestamp();
+    //             start_time = time - dtime;
+    //             update_real();
+    //         }
+    //     }
+    // })
+</script>
+
+</html>
