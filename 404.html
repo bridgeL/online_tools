@@ -1,89 +1,28 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>404</title>
 </head>
+
 <body>
     <div id="main">
         <div id="greeting">oops!</div>
         <br>
         <br>
         <div id="tools">
-            <div onclick="goto_url(this)">
+            <div onclick="this.querySelector('a').click()">
                 <div class="name">
                     <i>迷途知返</i>
                     <div>好的</div>
                 </div>
-
-                <a
-                    href="/online_tools"
-                    target="_blank"
-                >前往
-
-                </a>
+                <a href="/online_tools" target="_blank">前往</a>
             </div>
         </div>
     </div>
-    <script>
-        const goto_url = (el) => {
-            el.querySelector("a").click();
-        };
-    </script>
-    <style>
-        #main {
-            position: absolute;
-            top: 10%;
-            left: 40%;
-            transform: translateX(-50%);
-        }
-
-        #greeting {
-            user-select: none;
-            font-size: 100px;
-            font-weight: 900;
-        }
-
-        #tools {
-            width: 60vw;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        #tools>div {
-            cursor: pointer;
-            width: calc(60vw - 30px);
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid gray;
-            border-radius: 5px;
-            padding: 20px;
-        }
-
-        #tools>div:hover {
-            color: white;
-            background-color: gray;
-        }
-
-        .name {
-            width: 80%;
-        }
-
-        .name i {
-            font-size: 10px;
-        }
-
-        a {
-            color: inherit;
-            text-decoration-line: none;
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
 </body>
+
 </html>

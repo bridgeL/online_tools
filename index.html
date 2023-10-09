@@ -1,154 +1,22 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>bridge的工具导航站</title>
 </head>
+
 <body>
     <div id="main">
-        <i>更新时间：
-
-            <span id="time_s">
-
-            </span></i>
+        <i>更新时间：<span id="update"></span></i>
         <div id="greeting">hi.</div>
-        <input
-            id="search"
-            type="text"
-            onchange="change()"
-            placeholder="search"
-        >
+        <input id="search" type="text" onchange="change(this.value)" placeholder="search">
         <div id="tools"></div>
+        <br><br>
     </div>
-    <script>
-        const total = {};
-        const update = (data) => {
-            let inner_html = "";
-            data.forEach(d => {
-                let name = d.name;
-                let url = d.url;
-                let labels = d.labels.join(" ");
-                inner_html += `<div onclick="goto_url(this)" title="${url}">
-    <div class="name">
-        <i>${labels}</i>
-        <div>${name}</div>
-    </div>
-    <a href="${url}" target="_blank">前往</a>
-</div>`;
-            });
-            tools.innerHTML = inner_html + "<br><br>";
-        };
-
-        document.location.search.slice(1).split("&").forEach(e => {
-            let ts = e.split("=", 2);
-            let k = ts[0];
-            let v = decodeURIComponent(ts[1]);
-            if (k == "q") search.value = v;
-        });
-
-        let d = Math.floor(new Date().getTime() / 1000);
-        let old_d = localStorage.getItem("update_time");
-
-        config = {};
-        if (d - old_d >= 3600) {
-            config.cache = "reload";
-            localStorage.setItem("update_time", d);
-        }
-        else config.cache = "default";
-
-        fetch("config.json", config).then((res) => {
-            if (res.status === 200) return res.json();
-        }).then(data => {
-            total.data = data;
-            filter(search.value);
-        });
-
-        fetch("timestamp.txt", config).then((res) => {
-            if (res.status === 200) return res.text();
-        }).then(data => {
-            time_s.innerHTML = data;
-        });
-
-        const goto_url = (el) => {
-            el.querySelector("a").click();
-        };
-
-        const filter = (keyword) => {
-            let data = total.data.filter(d => {
-                return `${d.labels} ${d.name} ${d.url}`.indexOf(keyword) >= 0;
-            });
-            update(data);
-        };
-
-        const change = () => {
-            document.location.search = `?q=${search.value}`;
-        }
-
-
-    </script>
-    <style>
-        #main {
-            position: absolute;
-            top: 10%;
-            left: 40%;
-            transform: translateX(-50%);
-        }
-
-        #greeting {
-            user-select: none;
-            font-size: 100px;
-            font-weight: 900;
-        }
-
-        #search {
-            width: calc(60vw - 30px);
-            font-size: 16px;
-            margin: 20px 0;
-            border: 1px solid gray;
-            border-radius: 5px;
-            padding: 10px 20px;
-        }
-
-        #tools {
-            width: 60vw;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        #tools>div {
-            cursor: pointer;
-            width: calc(60vw - 30px);
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid gray;
-            border-radius: 5px;
-            padding: 20px;
-        }
-
-        #tools>div:hover {
-            color: white;
-            background-color: gray;
-        }
-
-        .name {
-            width: 80%;
-        }
-
-        .name i {
-            font-size: 10px;
-        }
-
-        a {
-            color: inherit;
-            text-decoration-line: none;
-        }
-    </style>
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="index.css">
 </body>
+
 </html>

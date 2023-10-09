@@ -1,30 +1,23 @@
-# 在线实用工具
+# Personal Website - online_pools_v2
 
-<i>更新时间：2023/09/02 00:56:43</i>
+based on online_pools, provide more clear structure and better support for extension
 
-- 无广告
-- 简单快捷
-- 个人使用
+## structure
 
-## 主页
-
-[https://bridgel.github.io/online_tools](https://bridgel.github.io/online_tools)
-
-## 功能一览
-
-功能|标签|更新日期
--|-|-
-[Github仓库](https://github.com/bridgeL/online_tools)|源码 链接|2023/04/10
-[计时器](https://bridgel.github.io/online_tools/tools/timer)|系统 工具|2023/04/10
-[快速生成python爬虫代码](https://bridgel.github.io/online_tools/tools/quick_spider)|爬虫 工具|2023/04/11
-[快速生成python爬虫代码2](https://bridgel.github.io/online_tools/tools/quick_spider2)|爬虫 工具|2023/04/11
-[十二时辰](https://bridgel.github.io/online_tools/games/time)|游戏|2023/04/11
-[2048](https://bridgel.github.io/online_tools/games/2048)|游戏|2023/04/11
-[倒水](https://bridgel.github.io/online_tools/games/cocktail)|游戏|2023/04/11
-[2048增强版](https://bridgel.github.io/online_tools/games/2048-plus)|游戏|2023/04/11
-[猜编码](https://bridgel.github.io/online_tools/tools/guess_code)|编码 工具|2023/04/12
-[时间戳](https://bridgel.github.io/online_tools/tools/timestamp)|时间戳 工具|2023/04/13
-[猫狸盘搜](https://www.alipansou.com)|资源 链接 网盘|2023/04/14
-[原神官网视频搜索器](https://bridgel.github.io/online_tools/games/yuanshen_video)|资源 游戏|2023/04/15
-[崩坏：星穹铁道官网视频搜索器](https://bridgel.github.io/online_tools/games/starrail_video)|资源 游戏|2023/05/04
-[默契游戏](https://bridgel.github.io/online_tools/games/answer_in_turn)|游戏|2023/09/02
+- index.html    // main page
+- index.js      // main page js
+- index.css     // main page css
+- tools.json    // store all tools' information
+- config.json   // store website configuration, such as update time
+- tools         // store tools and its resources and python script
+  - tool-a
+  - tool-b
+  - tool-c
+- third         // useful and powerful third script or code
+- 404.html      // when page url lost, show 404 page
+- .github       // store github auto update script
+  - main        // store main page update script
+  - tools       // store tools update script
+    - tool-a.yml
+    - tool-b.yml
+    - tool-c.yml
