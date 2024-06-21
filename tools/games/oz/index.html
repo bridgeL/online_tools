@@ -194,7 +194,8 @@
 
             roll() {
                 this.value = Utils.randSelect(this.numbers);
-                this.el.innerHTML = this.value + " (" + this.name + ")";
+                this.el.innerHTML = this.value;
+                // this.el.innerHTML = this.value + " (" + this.name + ")";
                 this.setUsed(false);
             }
 
@@ -222,7 +223,9 @@
                 this.el_type = el_type;
                 this.el_using = el_using;
                 this.display();
-                el_using.innerHTML = "<";
+                el_using.innerHTML = "◀";
+                el_using.style.color = "blue";
+                el_using.style.fontWeight = "bold";
                 el_using.style.opacity = 0;
             }
 
@@ -495,6 +498,7 @@
                         "button"
                     );
                     el_next_turn.innerHTML = "next turn";
+                    el_next_turn.style.fontSize = "20px";
                     el_next_turn.onclick = () => {
                         // boss失去所有盾
                         boss.setShield(0);
@@ -522,6 +526,7 @@
                     );
                     dial.bind(el_dial_switch);
                     el_dial_switch.innerHTML = "时之表盘";
+                    el_dial_switch.style.fontSize = "20px";
                     el_dial_switch.title = "点击切换";
                     el_dial_switch.onclick = () => {
                         dial.switchType();
