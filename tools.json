@@ -9,6 +9,14 @@
         "date": "2023/04/10"
     },
     {
+        "name": "Oz原型机",
+        "url": "tools/games/oz",
+        "labels": [
+            "游戏"
+        ],
+        "date": "2024/06/21"
+    },
+    {
         "name": "计时器",
         "url": "tools/timer",
         "labels": [

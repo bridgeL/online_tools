@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Oz demo</title>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+    <style>
+        #root,
+        #i-dial,
+        #i-func-btn,
+        .c-totem-bar {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #root {
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        #i-dial {
+            align-items: flex-start;
+        }
+
+        #i-func-btn {
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .c-totem-bar {
+            flex-direction: row;
+            width: 200px;
+        }
+
+        #i-dice-box {
+            height: 200px;
+            width: 200px;
+            position: relative;
+        }
+
+        .c-dice {
+            font-size: 20px;
+            position: absolute;
+        }
+
+        .red-bold {
+            color: red;
+            font-weight: bold;
+        }
+
+        #i-game-over-win-mask {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 100;
+            background: linear-gradient(
+                270deg,
+                #ff6ec4,
+                #7873f5,
+                #76b852,
+                #ffd700
+            );
+            background-size: 400% 400%;
+            animation: rainbow 10s ease infinite;
+            opacity: 0.7;
+            display: none;
+        }
+
+        #i-game-over-lose-mask {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 100;
+            background: linear-gradient(
+                270deg,
+                #ff0000,
+                #8b0000,
+                #ff4500,
+                #ff0000
+            );
+            background-size: 400% 400%;
+            animation: bloodFlow 8s ease infinite;
+            opacity: 0.7;
+            display: none;
+        }
+
+        @keyframes bloodFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes rainbow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+    <script>
+        const shootFireworks = () => {
+            const end = Date.now() + 1000; // Fireworks for 5 seconds
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+        };
+
+        const Utils = {
+            getByID: (id) => document.getElementById(id),
+            getsByClass: (className) =>
+                Array.from(document.getElementsByClassName(className)),
+            create: (id, className, parent, tag = "div") => {
+                let el = document.createElement(tag);
+                parent.appendChild(el);
+                if (id) el.id = id;
+                el.className = className;
+                return el;
+            },
+            randInt: (a, b) => Math.floor(Math.random() * (b - a)) + a,
+            randSelect: (array) => array[Utils.randInt(0, array.length)],
+            addClass: (el, className) => {
+                let names = el.className.split(" ");
+                if (names.indexOf(className) < 0)
+                    el.className += " " + className;
+            },
+            removeClass: (el, className) => {
+                let names = el.className.split(" ");
+                if (names.indexOf(className) >= 0) {
+                    names.splice(names.indexOf(className), 1);
+                    el.className = names.join(" ");
+                }
+            },
+        };
+
+        class Dice {
+            constructor(numbers, name) {
+                this.numbers = numbers;
+                this.value = 0;
+                this.name = name;
+            }
+
+            roll() {
+                this.value = Utils.randSelect(this.numbers);
+                this.el.innerHTML = this.value + " (" + this.name + ")";
+                this.setUsed(false);
+            }
+
+            bind(el) {
+                this.el = el;
+            }
+
+            setUsed(value) {
+                this.el.disabled = value;
+            }
+
+            setOrder(order) {
+                this.el.style.top = "" + order * 40 + "px";
+            }
+        }
+
+        class Totem {
+            constructor(type) {
+                this.type = type;
+                this.used_times = 0;
+                this.exp = 0;
+                this.level = 0;
+            }
+            bind(el_type, el_using) {
+                this.el_type = el_type;
+                this.el_using = el_using;
+                this.display();
+                el_using.innerHTML = "<";
+                el_using.style.color = "white";
+            }
+
+            display() {
+                this.el_type.innerHTML =
+                    this.type +
+                    "(level: " +
+                    this.level +
+                    ", exp:" +
+                    this.exp +
+                    ")";
+            }
+
+            enter() {
+                this.el_using.style.color = "black";
+            }
+            leave() {
+                this.el_using.style.color = "white";
+                // 重置使用次数
+                this.used_times = 0;
+            }
+            focus() {
+                Utils.addClass(this.el_type, "red-bold");
+            }
+            unfocus() {
+                Utils.removeClass(this.el_type, "red-bold");
+            }
+            is_sword() {
+                return this.type == "剑";
+            }
+
+            addExp() {
+                if (this.level >= 2) return;
+
+                this.exp += 1;
+                if (this.exp == 3) {
+                    this.exp = 0;
+                    this.level += 1;
+                }
+            }
+
+            use(dice) {
+                if (this.is_sword()) {
+                    console.log("攻击 " + dice.value);
+                    boss.beAttacked(dice.value);
+                } else {
+                    console.log("防御 " + dice.value);
+                    player.addShield(dice.value);
+                }
+                dice.setUsed(true);
+
+                this.used_times += 1;
+                this.addExp();
+                this.display();
+            }
+        }
+
+        class Dial {
+            constructor(totem_types) {
+                this.value = 0;
+                this.totems = totem_types.map((type) => new Totem(type));
+                this.type = "时之表盘";
+            }
+            init() {
+                this.setTime(0);
+            }
+            bind(el_dial_switch) {
+                this.el_dial_switch = el_dial_switch;
+            }
+            setTime(value) {
+                this.getCurrentTotem().leave();
+                this.value = value;
+                this.getCurrentTotem().enter();
+            }
+            addTime(value) {
+                this.setTime((this.value + value) % 12);
+            }
+            getNextTime(value) {
+                return (this.value + value) % 12;
+            }
+            getCurrentTotem() {
+                return this.totems[this.value];
+            }
+            getNextTotem(value) {
+                return this.totems[this.getNextTime(value)];
+            }
+            switchType() {
+                this.type = this.is_time() ? "魔之表盘" : "时之表盘";
+                this.el_dial_switch.innerHTML = this.type;
+            }
+            is_time() {
+                return this.type == "时之表盘";
+            }
+            useDice(dice) {
+                // 隐藏效果
+                this.getNextTotem(dice.value).unfocus();
+
+                // 时之表盘
+                if (this.is_time()) {
+                    this.addTime(dice.value);
+                    dice.setUsed(true);
+                    return;
+                }
+
+                // 魔之表盘
+                let totem = this.getCurrentTotem();
+                if (totem.used_times >= 1) {
+                    console.log("this totem has been used!");
+                    return;
+                }
+
+                totem.use(dice);
+            }
+        }
+
+        class Character {
+            constructor(hp_max) {
+                this.shield = 0;
+                this.hp = hp_max;
+                this.hp_max = hp_max;
+            }
+
+            bind(el_hp, el_shield) {
+                this.el_hp = el_hp;
+                this.el_shield = el_shield;
+            }
+
+            setShield(value) {
+                this.shield = Math.max(0, value);
+                this.el_shield.innerHTML = "SHIELD: " + this.shield;
+            }
+
+            setHP(value) {
+                this.hp = Math.max(0, Math.min(value, this.hp_max));
+                this.el_hp.innerHTML = "HP: " + this.hp + "/" + this.hp_max;
+
+                if (this.hp <= 0) {
+                    console.log("game over!");
+                    if (boss.hp <= 0) {
+                        shootFireworks();
+                        Utils.getByID("i-game-over-win-mask").style.display =
+                            "block";
+                    } else {
+                        Utils.getByID("i-game-over-lose-mask").style.display =
+                            "block";
+                    }
+                }
+            }
+
+            beAttacked(value) {
+                if (value <= this.shield) {
+                    this.setShield(this.shield - value);
+                } else {
+                    value -= this.shield;
+                    this.setShield(0);
+                    this.setHP(this.hp - value);
+                }
+            }
+
+            addShield(value) {
+                this.setShield(this.shield + value);
+            }
+        }
+
+        class DiceBox {
+            constructor() {
+                this.dices = [
+                    new Dice([4, 4, 4, 4, 4, 4], "全4骰子"),
+                    new Dice([2, 2, 2, 2, 2, 2], "全2骰子"),
+                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子1号"),
+                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子2号"),
+                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子3号"),
+                    new Dice([1, 1, 1, 1, 1, 1], "全1骰子"),
+                ];
+            }
+
+            rollAllDices() {
+                this.dices.forEach((dice) => dice.roll());
+
+                // 排序
+                this.dices.sort((a, b) => a.value - b.value);
+                this.dices.forEach((dice, index) => dice.setOrder(index));
+            }
+        }
+
+        const init = () => {
+            let el_root = Utils.getByID("root");
+
+            // create dial
+            {
+                let el_dial = Utils.create("i-dial", "", el_root);
+
+                for (let i = 0; i < 12; i++) {
+                    let el_totem_bar = Utils.create("", "c-totem-bar", el_dial);
+                    let el_type = Utils.create("", "", el_totem_bar);
+                    let el_using = Utils.create("", "", el_totem_bar);
+                    dial.totems[i].bind(el_type, el_using);
+                }
+                dial.init();
+            }
+
+            // create dices
+            {
+                let el_dice_bar = Utils.create("i-dice-box", "", el_root);
+
+                for (let i = 0; i < 6; i++) {
+                    let el_dice = Utils.create(
+                        "",
+                        "c-dice",
+                        el_dice_bar,
+                        "button"
+                    );
+                    let dice = dice_box.dices[i];
+                    dice.bind(el_dice);
+
+                    el_dice.onclick = () => {
+                        dial.useDice(dice);
+                    };
+
+                    el_dice.addEventListener("mouseenter", () => {
+                        if (dice.disabled) return;
+                        if (!dial.is_time()) return;
+                        dial.getNextTotem(dice.value).focus();
+                    });
+
+                    el_dice.addEventListener("mouseleave", () => {
+                        dial.getNextTotem(dice.value).unfocus();
+                    });
+                }
+
+                dice_box.rollAllDices();
+            }
+
+            // create next & dial-switch btn
+            {
+                let el_func_btn = Utils.create("i-func-btn", "", el_root);
+
+                // create next turn
+                {
+                    let el_next_turn = Utils.create(
+                        "",
+                        "",
+                        el_func_btn,
+                        "button"
+                    );
+                    el_next_turn.innerHTML = "next turn";
+                    el_next_turn.onclick = () => {
+                        // boss 攻击 或 防御
+                        console.log("boss 攻击 4点");
+                        player.beAttacked(4);
+
+                        // 玩家失去所有盾
+                        player.setShield(0);
+
+                        // 重roll骰子
+                        dice_box.rollAllDices();
+                    };
+                }
+
+                // create dial switch
+                {
+                    let el_dial_switch = Utils.create(
+                        "i-dial-switch",
+                        "",
+                        el_func_btn,
+                        "button"
+                    );
+                    dial.bind(el_dial_switch);
+                    el_dial_switch.innerHTML = "时之表盘";
+                    el_dial_switch.title = "点击切换";
+                    el_dial_switch.onclick = () => {
+                        dial.switchType();
+                    };
+                }
+            }
+
+            // create player & boss info
+            {
+                let el_info = Utils.create("i-info", "", el_root);
+                Utils.create("", "", el_info).innerHTML = "PLAYER";
+
+                let el_player_hp = Utils.create("i-player-hp", "", el_info);
+                let el_player_shield = Utils.create(
+                    "i-player-shield",
+                    "",
+                    el_info
+                );
+                player.bind(el_player_hp, el_player_shield);
+                player.setHP(20);
+                player.setShield(0);
+
+                Utils.create("", "", el_info, "br");
+                Utils.create("", "", el_info).innerHTML = "BOSS";
+
+                let el_boss_hp = Utils.create("i-boss-hp", "", el_info);
+                let el_boss_shield = Utils.create("i-boss-shield", "", el_info);
+
+                boss.bind(el_boss_hp, el_boss_shield);
+                boss.setHP(20);
+                boss.setShield(0);
+            }
+
+            // create game over mask
+            {
+                Utils.create(
+                    "i-game-over-win-mask",
+                    "",
+                    document.body
+                ).onclick = shootFireworks;
+                Utils.create("i-game-over-lose-mask", "", document.body);
+            }
+        };
+
+        const boss = new Character(20);
+        const player = new Character(20);
+        const dice_box = new DiceBox();
+        const dial = new Dial([
+            "剑",
+            "盾",
+            "剑",
+            "盾",
+            "剑",
+            "盾",
+            "剑",
+            "盾",
+            "剑",
+            "盾",
+            "剑",
+            "盾",
+        ]);
+
+        init();
+    </script>
+</html>
