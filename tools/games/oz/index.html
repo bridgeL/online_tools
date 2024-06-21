@@ -237,13 +237,14 @@
             bind(el_type) {
                 this.el_type = el_type;
                 this.el_type.onclick = () => {
-                    if (dice_box.selected_dice == null) return;
+                    let dice = dice_box.selected_dice;
+                    if (dice == null) return;
                     if (this == dial.getCurrentTotem()) {
-                        dial.useDice(dice_box.selected_dice, 1);
-                    } else if (
-                        this == dial.getNextTotem(dice_box.selected_dice.value)
-                    ) {
-                        dial.useDice(dice_box.selected_dice, 0);
+                        dial.useDice(dice, 1);
+                        dice_box.select_dice(null);
+                    } else if (this == dial.getNextTotem(dice.value)) {
+                        dial.useDice(dice, 0);
+                        dice_box.select_dice(null);
                     }
                 };
                 this.display();
@@ -292,10 +293,10 @@
             use(dice) {
                 let value = dice.value + this.level * 2;
                 if (this.is_sword()) {
-                    Utils.showToast("攻击 " + value);
+                    Utils.showToast("玩家 攻击 " + value);
                     boss.beAttacked(value);
                 } else {
-                    Utils.showToast("防御 " + value);
+                    Utils.showToast("玩家 防御 " + value);
                     player.addShield(value);
                 }
                 dice.setUsed(true);
@@ -333,7 +334,7 @@
                 this.getCurrentTotem().enter();
             }
             addTime(value) {
-                Utils.showToast("前进 " + value);
+                Utils.showToast("指针 前进 " + value);
                 this.setTime((this.value + value) % 12);
             }
             getNextTime(value) {
@@ -347,24 +348,21 @@
             }
 
             is_time() {
-                return this.type == "时之表盘";
+                return this.type == 0;
             }
 
             useDice(dice, type) {
-                if (type == 0) this.type = "时之表盘";
-                else this.type = "魔之表盘";
-
                 // 隐藏效果
                 this.getNextTotem(dice.value).unfocus();
-
-                // 时之表盘
-                if (this.is_time()) {
+                
+                // 移动指针
+                if (type==0) {
                     this.addTime(dice.value);
                     dice.setUsed(true);
                     return;
                 }
 
-                // 魔之表盘
+                // 使用图腾
                 let totem = this.getCurrentTotem();
                 if (totem.used_times >= 1) {
                     Utils.showToast("这个图腾已经没有能量了！", 1);
@@ -469,8 +467,10 @@
                     dial.getNextTotem(this.selected_dice.value).unfocus();
                 }
                 this.selected_dice = dice;
-                this.selected_dice.focus();
-                dial.getNextTotem(dice.value).focus();
+                if (this.selected_dice) {
+                    this.selected_dice.focus();
+                    dial.getNextTotem(dice.value).focus();
+                }
             }
 
             init() {
@@ -527,6 +527,8 @@
                     el_next_turn.innerHTML = "下一轮";
                     el_next_turn.style.fontSize = "20px";
                     el_next_turn.onclick = () => {
+                        dice_box.select_dice(null);
+
                         // boss失去所有盾
                         if (boss.shield > 0)
                             Utils.showToast(
@@ -561,7 +563,7 @@
                     el_help.onclick = function () {
                         Swal.fire({
                             title: "游戏帮助",
-                            html: `<p>你的魔法时钟有12个神秘图腾和1个蓝指针</p><p>你有6个神秘骰子，你可以用它移动指针，也可以发动当前图腾</p><p>使用剑图腾攻击怪物，使用盾图腾创造护盾，通过合理搭配取得胜利！</p><p>能量耗尽：每个图腾使用1次后耗尽能量，移动指针，图腾会重新充能</p><p>盾：你本回合获得的护盾将在你下回合开始时消失</p>`,
+                            html: `<p>你的魔法时钟有12个神秘图腾和1个蓝指针</p><p>你有6个神秘骰子，你可以用它移动指针，也可以使用当前图腾</p><p>使用剑图腾攻击怪物，使用盾图腾创造护盾，通过合理搭配取得胜利！</p><p>能量耗尽：每个图腾使用1次后耗尽能量，移动指针，图腾会重新充能</p><p>盾：你本回合获得的护盾将在你下回合开始时消失</p>`,
                             width: "80%",
                             padding: "1em",
                             showConfirmButton: false, // 隐藏确认按钮
