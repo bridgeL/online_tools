@@ -35,29 +35,29 @@
         }
 
         #root {
-            align-items: flex-start;
             gap: 20px;
         }
 
         #i-dial {
+            flex-wrap: wrap;
             flex-direction: row;
             align-items: flex-start;
             gap: 5px;
         }
 
         #i-func-box {
-            flex-direction: row;
-            gap: 5px;
+            margin-top: 20px;
+            gap: 20px;
         }
 
         #i-dice-box {
-            height: 20px;
+            height: 30px;
             width: 200px;
             position: relative;
         }
 
         .c-dice {
-            font-size: 20px;
+            font-size: 30px;
             position: absolute;
         }
 
@@ -561,7 +561,7 @@
                     el_help.onclick = function () {
                         Swal.fire({
                             title: "游戏帮助",
-                            html: `<p>你的魔法时钟有12个神秘图腾和1个指针</p><p>你有6个神秘骰子，你可以用它驱动指针移动，也可以发动图腾的能力</p><p>使用剑图腾攻击怪物，使用盾图腾创造护盾，通过合理搭配取得胜利！</p><p>能量耗尽：每个图腾使用1次后耗尽能量，直到指针离开该图腾后，图腾会重新充能</p><p>盾消失：你本回合获得的护盾将在你下回合开始时消失</p>`,
+                            html: `<p>你的魔法时钟有12个神秘图腾和1个蓝指针</p><p>你有6个神秘骰子，你可以用它移动指针，也可以发动当前图腾</p><p>使用剑图腾攻击怪物，使用盾图腾创造护盾，通过合理搭配取得胜利！</p><p>能量耗尽：每个图腾使用1次后耗尽能量，移动指针，图腾会重新充能</p><p>盾：你本回合获得的护盾将在你下回合开始时消失</p>`,
                             width: "80%",
                             padding: "1em",
                             showConfirmButton: false, // 隐藏确认按钮
