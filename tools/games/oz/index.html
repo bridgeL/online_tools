@@ -14,6 +14,11 @@
             href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css"
         />
         <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     </head>
     <body>
         <div id="root"></div>
@@ -21,7 +26,7 @@
     <style>
         #root,
         #i-dial,
-        #i-func-btn,
+        #i-func-box,
         .c-totem-bar {
             display: flex;
             flex-direction: column;
@@ -30,27 +35,23 @@
         }
 
         #root {
-            flex-direction: row;
             align-items: flex-start;
             gap: 20px;
         }
 
         #i-dial {
-            align-items: flex-start;
-        }
-
-        #i-func-btn {
+            flex-direction: row;
             align-items: flex-start;
             gap: 5px;
         }
 
-        .c-totem-bar {
+        #i-func-box {
             flex-direction: row;
-            width: 200px;
+            gap: 5px;
         }
 
         #i-dice-box {
-            height: 200px;
+            height: 20px;
             width: 200px;
             position: relative;
         }
@@ -62,7 +63,12 @@
 
         .red-bold {
             color: red;
-            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .blue-bold {
+            color: blue;
+            cursor: pointer;
         }
 
         #i-game-over-win-mask {
@@ -130,34 +136,6 @@
         }
     </style>
     <script>
-        function showToast(message) {
-            alertify.notify(message, "success", 5);
-            console.log(message);
-        }
-
-        const shootFireworks = () => {
-            const end = Date.now() + 1000; // Fireworks for 5 seconds
-
-            (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            })();
-        };
-
         const Utils = {
             getByID: (id) => document.getElementById(id),
             getsByClass: (className) =>
@@ -183,32 +161,69 @@
                     el.className = names.join(" ");
                 }
             },
+            shootFireworks: () => {
+                const end = Date.now() + 1000; // Fireworks for 5 seconds
+
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                })();
+            },
+            showToast: (message, type = 0) => {
+                if (type == 0) alertify.notify(message, "success", 5);
+                if (type == 1) alertify.notify(message, "error", 5);
+                if (type == 2) alertify.notify(message, "error", 5);
+                if (type == 3) alertify.notify(message, "info", 5);
+                console.log(message);
+            },
         };
 
         class Dice {
-            constructor(numbers, name) {
+            constructor(numbers) {
                 this.numbers = numbers;
                 this.value = 0;
-                this.name = name;
             }
 
             roll() {
                 this.value = Utils.randSelect(this.numbers);
                 this.el.innerHTML = this.value;
-                // this.el.innerHTML = this.value + " (" + this.name + ")";
                 this.setUsed(false);
             }
 
             bind(el) {
                 this.el = el;
+                this.el.title = this.numbers;
             }
 
             setUsed(value) {
                 this.el.disabled = value;
+                this.unfocus();
             }
 
             setOrder(order) {
-                this.el.style.top = "" + order * 40 + "px";
+                this.el.style.left = "" + order * 40 + "px";
+            }
+
+            focus() {
+                Utils.addClass(this.el, "red-bold");
+            }
+
+            unfocus() {
+                Utils.removeClass(this.el, "red-bold");
             }
         }
 
@@ -219,33 +234,40 @@
                 this.exp = 0;
                 this.level = 0;
             }
-            bind(el_type, el_using) {
+            bind(el_type) {
                 this.el_type = el_type;
-                this.el_using = el_using;
+                this.el_type.onclick = () => {
+                    if (dice_box.selected_dice == null) return;
+                    if (this == dial.getCurrentTotem()) {
+                        dial.useDice(dice_box.selected_dice, 1);
+                    } else if (
+                        this == dial.getNextTotem(dice_box.selected_dice.value)
+                    ) {
+                        dial.useDice(dice_box.selected_dice, 0);
+                    }
+                };
                 this.display();
-                el_using.innerHTML = "◀";
-                el_using.style.color = "blue";
-                el_using.style.fontWeight = "bold";
-                el_using.style.opacity = 0;
             }
 
             display() {
-                this.el_type.innerHTML =
-                    this.type +
-                    "(level: " +
-                    this.level +
-                    ", exp:" +
-                    this.exp +
-                    ")";
+                this.el_type.innerHTML = `<div style="border:1px solid black; padding: 0 4px; border-radius: 5%">
+                    <div style="font-size:40px; font-weight:bold">${this.type}</div>
+                    <div style="font-size:10px; display:flex; flex-direction: row; justify-content: space-around">
+                        <div>lv.${this.level}</div>
+                        <div>${this.exp}/2</div>
+                        </div>
+                    </div>
+                `;
             }
 
             enter() {
-                this.el_using.style.opacity = 1;
+                Utils.addClass(this.el_type, "blue-bold");
             }
             leave() {
-                this.el_using.style.opacity = 0;
+                Utils.removeClass(this.el_type, "blue-bold");
                 // 重置使用次数
                 this.used_times = 0;
+                this.el_type.style.backgroundColor = "#fff";
             }
             focus() {
                 Utils.addClass(this.el_type, "red-bold");
@@ -261,24 +283,25 @@
                 if (this.level >= 2) return;
 
                 this.exp += 1;
-                if (this.exp == 3) {
+                if (this.exp == 2) {
                     this.exp = 0;
                     this.level += 1;
                 }
             }
 
             use(dice) {
-                let value = dice.value + this.level;
+                let value = dice.value + this.level * 2;
                 if (this.is_sword()) {
-                    showToast("攻击 " + value);
+                    Utils.showToast("攻击 " + value);
                     boss.beAttacked(value);
                 } else {
-                    showToast("防御 " + value);
+                    Utils.showToast("防御 " + value);
                     player.addShield(value);
                 }
                 dice.setUsed(true);
 
                 this.used_times += 1;
+                this.el_type.style.backgroundColor = "#ccc";
                 this.addExp();
                 this.display();
             }
@@ -291,6 +314,14 @@
                 this.type = "时之表盘";
             }
             init() {
+                let el_root = Utils.getByID("root");
+                let el_dial = Utils.create("i-dial", "", el_root);
+
+                for (let i = 0; i < 12; i++) {
+                    let el_type = Utils.create("", "", el_dial);
+                    dial.totems[i].bind(el_type);
+                }
+
                 this.setTime(0);
             }
             bind(el_dial_switch) {
@@ -302,7 +333,7 @@
                 this.getCurrentTotem().enter();
             }
             addTime(value) {
-                showToast("前进了" + value + "小时");
+                Utils.showToast("前进 " + value);
                 this.setTime((this.value + value) % 12);
             }
             getNextTime(value) {
@@ -314,17 +345,15 @@
             getNextTotem(value) {
                 return this.totems[this.getNextTime(value)];
             }
-            switchType() {
-                this.type = this.is_time() ? "魔之表盘" : "时之表盘";
-                if (this.type == "时之表盘")
-                    Utils.getByID("i-dial").style.backgroundColor = "white";
-                else Utils.getByID("i-dial").style.backgroundColor = "#edd";
-                this.el_dial_switch.innerHTML = this.type;
-            }
+
             is_time() {
                 return this.type == "时之表盘";
             }
-            useDice(dice) {
+
+            useDice(dice, type) {
+                if (type == 0) this.type = "时之表盘";
+                else this.type = "魔之表盘";
+
                 // 隐藏效果
                 this.getNextTotem(dice.value).unfocus();
 
@@ -338,7 +367,7 @@
                 // 魔之表盘
                 let totem = this.getCurrentTotem();
                 if (totem.used_times >= 1) {
-                    showToast("this totem has been used!");
+                    Utils.showToast("这个图腾已经没有能量了！", 1);
                     return;
                 }
 
@@ -347,10 +376,11 @@
         }
 
         class Character {
-            constructor(hp_max) {
+            constructor(hp_max, name) {
                 this.shield = 0;
                 this.hp = hp_max;
                 this.hp_max = hp_max;
+                this.name = name;
             }
 
             bind(el_hp, el_shield) {
@@ -360,33 +390,35 @@
 
             setShield(value) {
                 this.shield = Math.max(0, value);
-                this.el_shield.innerHTML = "SHIELD: " + this.shield;
+                this.el_shield.innerHTML = "护盾: " + this.shield;
             }
 
             setHP(value) {
                 this.hp = Math.max(0, Math.min(value, this.hp_max));
                 this.el_hp.innerHTML = "HP: " + this.hp + "/" + this.hp_max;
+            }
+
+            beAttacked(value) {
+                if (value <= this.shield) {
+                    this.setShield(this.shield - value);
+                    Utils.showToast(this.name + "受到 0 点伤害", 3);
+                } else {
+                    value -= this.shield;
+                    this.setShield(0);
+                    this.setHP(this.hp - value);
+                    Utils.showToast(this.name + "受到 " + value + " 点伤害", 3);
+                }
 
                 if (this.hp <= 0) {
-                    showToast("game over!");
                     if (boss.hp <= 0) {
-                        shootFireworks();
+                        Utils.shootFireworks();
                         Utils.getByID("i-game-over-win-mask").style.display =
                             "block";
                     } else {
                         Utils.getByID("i-game-over-lose-mask").style.display =
                             "block";
                     }
-                }
-            }
-
-            beAttacked(value) {
-                if (value <= this.shield) {
-                    this.setShield(this.shield - value);
-                } else {
-                    value -= this.shield;
-                    this.setShield(0);
-                    this.setHP(this.hp - value);
+                    Utils.showToast("game over!");
                 }
             }
 
@@ -396,34 +428,69 @@
         }
 
         class Boss extends Character {
-            constructor(hp_max) {
-                super(hp_max);
-                this.next_act_type = "attack";
+            constructor(hp_max, name) {
+                super(hp_max, name);
+                this.act_type = "防御";
+            }
+
+            bind_el_act(el_act) {
+                this.el_act = el_act;
+            }
+
+            change_act() {
+                this.act_type = Utils.randSelect(["攻击", "防御"]);
+                this.el_act.innerHTML = "下一步：" + this.act_type + " 10";
             }
 
             act(player) {
-                if (this.next_act_type == "attack") {
-                    showToast("boss 攻击 10点");
-                    player.beAttacked(10);
-                    if (Utils.randInt(0, 3) == 0) this.next_act_type = "defend";
-                } else {
-                    showToast("boss 防御 10点");
-                    this.addShield(10);
-                    if (Utils.randInt(0, 2) == 0) this.next_act_type = "attack";
-                }
+                Utils.showToast("boss " + this.act_type + " 10", 2);
+                if (this.act_type == "攻击") player.beAttacked(10);
+                else this.addShield(10);
+                this.change_act();
             }
         }
 
         class DiceBox {
             constructor() {
                 this.dices = [
-                    new Dice([4, 4, 4, 4, 4, 4], "全4骰子"),
-                    new Dice([2, 2, 2, 2, 2, 2], "全2骰子"),
-                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子1号"),
-                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子2号"),
-                    new Dice([1, 2, 3, 4, 5, 6], "正常骰子3号"),
-                    new Dice([1, 1, 1, 1, 1, 1], "全1骰子"),
+                    new Dice([4, 4, 4, 4, 4, 4]),
+                    new Dice([2, 2, 2, 2, 2, 2]),
+                    new Dice([1, 2, 3, 4, 5, 6]),
+                    new Dice([1, 2, 3, 4, 5, 6]),
+                    new Dice([1, 2, 3, 4, 5, 6]),
+                    new Dice([1, 1, 1, 1, 1, 1]),
                 ];
+                this.selected_dice = null;
+            }
+
+            select_dice(dice) {
+                if (this.selected_dice) {
+                    this.selected_dice.unfocus();
+                    dial.getNextTotem(this.selected_dice.value).unfocus();
+                }
+                this.selected_dice = dice;
+                this.selected_dice.focus();
+                dial.getNextTotem(dice.value).focus();
+            }
+
+            init() {
+                let el_root = Utils.getByID("root");
+                let el_dice_bar = Utils.create("i-dice-box", "", el_root);
+
+                for (let i = 0; i < 6; i++) {
+                    let el_dice = Utils.create(
+                        "",
+                        "c-dice",
+                        el_dice_bar,
+                        "button"
+                    );
+                    let dice = dice_box.dices[i];
+                    dice.bind(el_dice);
+
+                    el_dice.onclick = () => {
+                        this.select_dice(dice);
+                    };
+                }
             }
 
             rollAllDices() {
@@ -439,112 +506,79 @@
             let el_root = Utils.getByID("root");
 
             // create dial
-            {
-                let el_dial = Utils.create("i-dial", "", el_root);
-
-                for (let i = 0; i < 12; i++) {
-                    let el_totem_bar = Utils.create("", "c-totem-bar", el_dial);
-                    let el_type = Utils.create("", "", el_totem_bar);
-                    let el_using = Utils.create("", "", el_totem_bar);
-                    dial.totems[i].bind(el_type, el_using);
-                }
-                dial.init();
-            }
+            dial.init();
 
             // create dices
+            dice_box.init();
+            dice_box.rollAllDices();
+
+            // create next & help btn
             {
-                let el_dice_bar = Utils.create("i-dice-box", "", el_root);
-
-                for (let i = 0; i < 6; i++) {
-                    let el_dice = Utils.create(
-                        "",
-                        "c-dice",
-                        el_dice_bar,
-                        "button"
-                    );
-                    let dice = dice_box.dices[i];
-                    dice.bind(el_dice);
-
-                    el_dice.onclick = () => {
-                        dial.useDice(dice);
-                    };
-
-                    el_dice.addEventListener("mouseenter", () => {
-                        if (dice.disabled) return;
-                        if (dial.is_time())
-                            dial.getNextTotem(dice.value).focus();
-                        else dial.getCurrentTotem().focus();
-                    });
-
-                    el_dice.addEventListener("mouseleave", () => {
-                        dial.getCurrentTotem().unfocus();
-                        dial.getNextTotem(dice.value).unfocus();
-                    });
-                }
-
-                dice_box.rollAllDices();
-            }
-
-            // create next & dial-switch btn
-            {
-                let el_func_btn = Utils.create("i-func-btn", "", el_root);
+                let el_func_box = Utils.create("i-func-box", "", el_root);
 
                 // create next turn
                 {
                     let el_next_turn = Utils.create(
                         "",
                         "",
-                        el_func_btn,
+                        el_func_box,
                         "button"
                     );
-                    el_next_turn.innerHTML = "next turn";
+                    el_next_turn.innerHTML = "下一轮";
                     el_next_turn.style.fontSize = "20px";
                     el_next_turn.onclick = () => {
                         // boss失去所有盾
+                        if (boss.shield > 0)
+                            Utils.showToast(
+                                "boss 失去 " + boss.shield + " 点护盾",
+                                3
+                            );
                         boss.setShield(0);
 
                         // boss 攻击 或 防御
                         boss.act(player);
 
                         // 玩家失去所有盾
+                        if (player.shield > 0)
+                            Utils.showToast(
+                                "玩家 失去 " + player.shield + " 点护盾",
+                                3
+                            );
                         player.setShield(0);
 
                         // 重roll骰子
                         dice_box.rollAllDices();
 
-                        showToast("boss 下一步行动: " + boss.next_act_type);
+                        Utils.showToast("boss 下一步行动: " + boss.act_type, 2);
                     };
                 }
 
-                // create dial switch
+                // help
                 {
-                    let el_dial_switch = Utils.create(
-                        "i-dial-switch",
-                        "",
-                        el_func_btn,
-                        "button"
-                    );
-                    dial.bind(el_dial_switch);
-                    el_dial_switch.innerHTML = "时之表盘";
-                    el_dial_switch.style.fontSize = "20px";
-                    el_dial_switch.title = "点击切换";
-                    el_dial_switch.onclick = () => {
-                        dial.switchType();
+                    let el_help = Utils.create("", "", el_func_box, "button");
+                    el_help.innerHTML = "帮助";
+                    el_help.style.fontSize = "20px";
+                    el_help.onclick = function () {
+                        Swal.fire({
+                            title: "游戏帮助",
+                            html: `<p>你的魔法时钟有12个神秘图腾和1个指针</p><p>你有6个神秘骰子，你可以用它驱动指针移动，也可以发动图腾的能力</p><p>使用剑图腾攻击怪物，使用盾图腾创造护盾，通过合理搭配取得胜利！</p><p>能量耗尽：每个图腾使用1次后耗尽能量，直到指针离开该图腾后，图腾会重新充能</p><p>盾消失：你本回合获得的护盾将在你下回合开始时消失</p>`,
+                            width: "80%",
+                            padding: "1em",
+                            showConfirmButton: false, // 隐藏确认按钮
+                            showCancelButton: false, // 隐藏取消按钮
+                        });
                     };
                 }
             }
 
             // create player & boss info
             {
-                let el_info = Utils.create("i-info", "", el_root);
+                let el_info = Utils.create("", "", el_root);
+
                 Utils.create("", "", el_info).innerHTML = "PLAYER";
 
-                let el_player_hp = Utils.create("i-player-hp", "", el_info);
-                let el_player_shield = Utils.create(
-                    "i-player-shield",
-                    "",
-                    el_info
-                );
+                let el_player_hp = Utils.create("", "", el_info);
+                let el_player_shield = Utils.create("", "", el_info);
                 player.bind(el_player_hp, el_player_shield);
                 player.setHP(player.hp);
                 player.setShield(0);
@@ -552,29 +586,28 @@
                 Utils.create("", "", el_info, "br");
                 Utils.create("", "", el_info).innerHTML = "BOSS";
 
-                let el_boss_hp = Utils.create("i-boss-hp", "", el_info);
-                let el_boss_shield = Utils.create("i-boss-shield", "", el_info);
+                let el_boss_hp = Utils.create("", "", el_info);
+                let el_boss_shield = Utils.create("", "", el_info);
+                let el_act = Utils.create("", "", el_info);
 
                 boss.bind(el_boss_hp, el_boss_shield);
+                boss.bind_el_act(el_act);
                 boss.setHP(boss.hp);
                 boss.setShield(0);
+                boss.change_act();
 
-                showToast("boss 下一步行动: " + boss.next_act_type);
+                Utils.showToast("boss 下一步行动: " + boss.act_type + " 10", 2);
             }
 
             // create game over mask
-            {
-                Utils.create(
-                    "i-game-over-win-mask",
-                    "",
-                    document.body
-                ).onclick = shootFireworks;
-                Utils.create("i-game-over-lose-mask", "", document.body);
-            }
+            Utils.create("i-game-over-win-mask", "", document.body).onclick =
+                () => Utils.shootFireworks();
+
+            Utils.create("i-game-over-lose-mask", "", document.body);
         };
 
-        const boss = new Boss(40);
-        const player = new Character(20);
+        const boss = new Boss(40, "boss");
+        const player = new Character(20, "玩家");
         const dice_box = new DiceBox();
         const dial = new Dial([
             "剑",
