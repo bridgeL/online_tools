@@ -5,6 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Oz demo</title>
         <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/alertify.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/alertifyjs/build/alertify.min.js"></script>
     </head>
     <body>
         <div id="root"></div>
@@ -121,6 +130,11 @@
         }
     </style>
     <script>
+        function showToast(message) {
+            alertify.notify(message, "success", 5);
+            console.log(message);
+        }
+
         const shootFireworks = () => {
             const end = Date.now() + 1000; // Fireworks for 5 seconds
 
@@ -209,7 +223,7 @@
                 this.el_using = el_using;
                 this.display();
                 el_using.innerHTML = "<";
-                el_using.style.color = "white";
+                el_using.style.opacity = 0;
             }
 
             display() {
@@ -223,10 +237,10 @@
             }
 
             enter() {
-                this.el_using.style.color = "black";
+                this.el_using.style.opacity = 1;
             }
             leave() {
-                this.el_using.style.color = "white";
+                this.el_using.style.opacity = 0;
                 // 重置使用次数
                 this.used_times = 0;
             }
@@ -251,12 +265,13 @@
             }
 
             use(dice) {
+                let value = dice.value + this.level;
                 if (this.is_sword()) {
-                    console.log("攻击 " + dice.value);
-                    boss.beAttacked(dice.value);
+                    showToast("攻击 " + value);
+                    boss.beAttacked(value);
                 } else {
-                    console.log("防御 " + dice.value);
-                    player.addShield(dice.value);
+                    showToast("防御 " + value);
+                    player.addShield(value);
                 }
                 dice.setUsed(true);
 
@@ -284,6 +299,7 @@
                 this.getCurrentTotem().enter();
             }
             addTime(value) {
+                showToast("前进了" + value + "小时");
                 this.setTime((this.value + value) % 12);
             }
             getNextTime(value) {
@@ -297,6 +313,9 @@
             }
             switchType() {
                 this.type = this.is_time() ? "魔之表盘" : "时之表盘";
+                if (this.type == "时之表盘")
+                    Utils.getByID("i-dial").style.backgroundColor = "white";
+                else Utils.getByID("i-dial").style.backgroundColor = "#edd";
                 this.el_dial_switch.innerHTML = this.type;
             }
             is_time() {
@@ -316,7 +335,7 @@
                 // 魔之表盘
                 let totem = this.getCurrentTotem();
                 if (totem.used_times >= 1) {
-                    console.log("this totem has been used!");
+                    showToast("this totem has been used!");
                     return;
                 }
 
@@ -346,7 +365,7 @@
                 this.el_hp.innerHTML = "HP: " + this.hp + "/" + this.hp_max;
 
                 if (this.hp <= 0) {
-                    console.log("game over!");
+                    showToast("game over!");
                     if (boss.hp <= 0) {
                         shootFireworks();
                         Utils.getByID("i-game-over-win-mask").style.display =
@@ -370,6 +389,25 @@
 
             addShield(value) {
                 this.setShield(this.shield + value);
+            }
+        }
+
+        class Boss extends Character {
+            constructor(hp_max) {
+                super(hp_max);
+                this.next_act_type = "attack";
+            }
+
+            act(player) {
+                if (this.next_act_type == "attack") {
+                    showToast("boss 攻击 10点");
+                    player.beAttacked(10);
+                    if (Utils.randInt(0, 3) == 0) this.next_act_type = "defend";
+                } else {
+                    showToast("boss 防御 10点");
+                    this.addShield(10);
+                    if (Utils.randInt(0, 2) == 0) this.next_act_type = "attack";
+                }
             }
         }
 
@@ -430,11 +468,13 @@
 
                     el_dice.addEventListener("mouseenter", () => {
                         if (dice.disabled) return;
-                        if (!dial.is_time()) return;
-                        dial.getNextTotem(dice.value).focus();
+                        if (dial.is_time())
+                            dial.getNextTotem(dice.value).focus();
+                        else dial.getCurrentTotem().focus();
                     });
 
                     el_dice.addEventListener("mouseleave", () => {
+                        dial.getCurrentTotem().unfocus();
                         dial.getNextTotem(dice.value).unfocus();
                     });
                 }
@@ -456,15 +496,19 @@
                     );
                     el_next_turn.innerHTML = "next turn";
                     el_next_turn.onclick = () => {
+                        // boss失去所有盾
+                        boss.setShield(0);
+
                         // boss 攻击 或 防御
-                        console.log("boss 攻击 4点");
-                        player.beAttacked(4);
+                        boss.act(player);
 
                         // 玩家失去所有盾
                         player.setShield(0);
 
                         // 重roll骰子
                         dice_box.rollAllDices();
+
+                        showToast("boss 下一步行动: " + boss.next_act_type);
                     };
                 }
 
@@ -497,7 +541,7 @@
                     el_info
                 );
                 player.bind(el_player_hp, el_player_shield);
-                player.setHP(20);
+                player.setHP(player.hp);
                 player.setShield(0);
 
                 Utils.create("", "", el_info, "br");
@@ -507,8 +551,10 @@
                 let el_boss_shield = Utils.create("i-boss-shield", "", el_info);
 
                 boss.bind(el_boss_hp, el_boss_shield);
-                boss.setHP(20);
+                boss.setHP(boss.hp);
                 boss.setShield(0);
+
+                showToast("boss 下一步行动: " + boss.next_act_type);
             }
 
             // create game over mask
@@ -522,7 +568,7 @@
             }
         };
 
-        const boss = new Character(20);
+        const boss = new Boss(40);
         const player = new Character(20);
         const dice_box = new DiceBox();
         const dial = new Dial([
