@@ -9,6 +9,14 @@
         "date": "2023/04/10"
     },
     {
+        "name": "文字戴森球",
+        "url": "tools/games/dyson",
+        "labels": [
+            "游戏"
+        ],
+        "date": "2025/01/24"
+    },
+    {
         "name": "Oz原型机",
         "url": "tools/games/oz",
         "labels": [

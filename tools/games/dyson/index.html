@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文字戴森球</title>
+  </head>
+  <body>
+    <div id="main">
+      <div id="resource">
+        资源点
+        <button id="explore">探索</button>
+        <div class="list"></div>
+      </div>
+      <div id="item_list">
+        物品
+        <div class="list"></div>
+      </div>
+      <div id="produce">
+        生产线 <span id="power" title="耗电/发电">10W/10W</span>
+        <div class="list"></div>
+      </div>
+      <div>科技树</div>
+    </div>
+  </body>
+  <script>
+    const data = {};
+    const resource = {};
+    const name_dict = {
+      resource_copper_ore: "铜矿",
+      resource_iron_ore: "铁矿",
+      resource_stone: "石矿",
+      resource_coal: "煤矿",
+
+      item_copper_ore: "铜矿石",
+      item_iron_ore: "铁矿石",
+      item_stone: "石头",
+      item_coal: "煤矿石",
+
+      item_copper_plate: "铜板",
+      item_iron_plate: "铁板",
+      item_brick: "石砖",
+      item_magnet: "磁铁",
+      item_coil: "线圈",
+      item_circuit: "电路板",
+      item_gear: "齿轮",
+
+      machine_mining: "采矿机",
+      machine_furnace: "冶炼炉",
+      machine_making: "制造台",
+      machine_power_station: "火电站",
+
+      consume_coal: "火力发电",
+    };
+
+    const power_usage = {
+      machine_mining: 1,
+      machine_furnace: 1,
+      machine_making: 1,
+      machine_power_station: -10,
+    };
+    const power_sum = {
+      usage: 0,
+      create: 0,
+    };
+
+    function update_power() {
+      var power1 = 0;
+      var power2 = 0;
+      document.querySelectorAll(".pv_line").forEach((div) => {
+        if (div.open && power_usage[div.machine] > 0) {
+          power1 += power_usage[div.machine] * div.num;
+        }
+        if (div.open && power_usage[div.machine] < 0) {
+          // 火力发电站消耗煤才能发电
+          if (div.machine == "machine_power_station") {
+            if (data.item_coal > 0)
+              power2 -= power_usage[div.machine] * div.num;
+          } else {
+            power2 -= power_usage[div.machine] * div.num;
+          }
+        }
+      });
+
+      power_sum.usage = power1;
+      power_sum.create = power2;
+
+      var div = document.querySelector("#power");
+
+      div.innerHTML = `${power1}W/${power2}W`;
+
+      if (power2 < power1) {
+        div.classList.add("slow");
+      } else {
+        div.classList.remove("slow");
+      }
+    }
+
+    function add_new_resource(key, num) {
+      resource[key] = num;
+      var name = name_dict[key];
+      document
+        .querySelector("#resource .list")
+        .appendChild(resource_viewer_line(name, key));
+    }
+
+    function resource_viewer_line(name, key) {
+      var div = document.createElement("div");
+      div.className = "v_line";
+      div.key = key;
+      div.id = `v_${key}`;
+      function set_content() {
+        div.innerHTML = `<div>${name}</div><div>${resource[key]}</div>`;
+      }
+      function show_consume(num) {
+        div.innerHTML = `<div>${name}</div><div>${resource[key]}/${num}</div>`;
+      }
+      set_content();
+      div.set_content = set_content;
+      div.show_consume = show_consume;
+      return div;
+    }
+
+    function update_viewer_line(key) {
+      document.querySelector(`#v_${key}`).set_content();
+    }
+
+    function show_viewer_consume(key, num) {
+      document.querySelector(`#v_${key}`).show_consume(num);
+    }
+
+    function add_new_data(key, num) {
+      data[key] = num;
+      var name = name_dict[key];
+      document
+        .querySelector("#item_list .list")
+        .appendChild(data_viewer_line(name, key));
+    }
+
+    function add_new_produce(
+      num,
+      key,
+      resource_dict,
+      out_rate,
+      auto_tick,
+      machine
+    ) {
+      var name = name_dict[key];
+      document
+        .querySelector("#produce .list")
+        .appendChild(
+          produce_viewer_line(
+            name,
+            num,
+            key,
+            resource_dict,
+            out_rate,
+            auto_tick,
+            machine
+          )
+        );
+    }
+
+    function data_viewer_line(name, key) {
+      var div = document.createElement("div");
+      div.className = "v_line";
+      div.key = key;
+      div.id = `v_${key}`;
+      function set_content() {
+        div.innerHTML = `<div>${name}</div><div>${data[key]}</div>`;
+      }
+      function show_consume(num) {
+        div.innerHTML = `<div>${name}</div><div>${data[key]}/${num}</div>`;
+      }
+      set_content();
+      div.set_content = set_content;
+      div.show_consume = show_consume;
+      return div;
+    }
+
+    function produce_viewer_line(
+      name,
+      num,
+      key,
+      resource_dict,
+      out_rate,
+      auto_tick,
+      machine
+    ) {
+      /*
+       * name - 显示的名称
+       * num - 当前数量
+       * key - 在data中该物品的id
+       * resource_dict - 制造该物品需要哪些物品或资源，他们的id与所需数量的键值对
+       * out_rate - 一次生产将产生几个该物品
+       * auto_tick - 自动化生产时需要消耗几次tick
+       * machine - 需要什么机器来生产该物品
+       */
+
+      var div = document.createElement("div");
+      div.className = "pv_line";
+      div.num = num;
+      div.key = key;
+      div.auto_tick = auto_tick;
+      div.tick_cnt = 0;
+      div.machine = machine;
+      div.open = true;
+      div.id = `p_${key}`;
+      div.mark = false;
+
+      var div1 = document.createElement("button");
+      div1.className = "name_btn";
+      function set_content() {
+        div1.innerHTML = `${name}(${div.num})`;
+      }
+      var d = [];
+      for (const k in resource_dict) {
+        const v = resource_dict[k];
+        d.push(`${v}${name_dict[k]}`);
+      }
+      div1.title =
+        d.join(" + ") + ` -> ${out_rate}${name} / 每${auto_tick / 100}秒`;
+      div1.addEventListener("mouseenter", () => {
+        for (const k in resource_dict) {
+          document.querySelector(`#v_${k}`).classList.add("on");
+          show_viewer_consume(k, resource_dict[k]);
+        }
+      });
+      div1.addEventListener("mouseleave", () => {
+        for (const k in resource_dict) {
+          document.querySelector(`#v_${k}`).classList.remove("on");
+          update_viewer_line(k);
+        }
+      });
+
+      var div2 = document.createElement("button");
+      div2.className = "num_btn";
+      div2.innerHTML = "+";
+      div2.title = name_dict[machine];
+      div2.addEventListener("mouseenter", () => {
+        document.querySelector(`#v_${machine}`).classList.add("on");
+      });
+      div2.addEventListener("mouseleave", () => {
+        document.querySelector(`#v_${machine}`).classList.remove("on");
+      });
+
+      var div3 = document.createElement("button");
+      div3.className = "num_btn";
+      div3.innerHTML = "-";
+      div3.title = name_dict[machine];
+      div3.addEventListener("mouseenter", () => {
+        document.querySelector(`#v_${machine}`).classList.add("on");
+      });
+      div3.addEventListener("mouseleave", () => {
+        document.querySelector(`#v_${machine}`).classList.remove("on");
+      });
+
+      var div4 = document.createElement("button");
+      div4.className = "num_btn";
+      div4.innerHTML = "on";
+      div4.style = "color:green";
+
+      function toggle() {
+        div.open = !div.open;
+        if (div.open) {
+          div4.innerHTML = "on";
+          div4.style.color = "green";
+        } else {
+          div4.innerHTML = "off";
+          div4.style.color = "red";
+        }
+        update_power();
+      }
+      div4.addEventListener("click", toggle);
+
+      var div5 = document.createElement("button");
+      div5.className = "num_btn";
+      div5.innerHTML = " ";
+      div5.style = "color:red";
+
+      function toggle2() {
+        div.mark = !div.mark;
+        if (div.mark) {
+          div5.innerHTML = "M";
+          for (const k in resource_dict) {
+            document.querySelector(`#v_${k}`).classList.add("mark");
+            document.querySelector(`#p_${k}`)?.classList.add("mark");
+          }
+        } else {
+          div5.innerHTML = " ";
+          for (const k in resource_dict) {
+            document.querySelector(`#v_${k}`).classList.remove("mark");
+            document.querySelector(`#p_${k}`)?.classList.remove("mark");
+          }
+        }
+      }
+      div5.addEventListener("click", toggle2);
+
+      div.append(div5, div1, div2, div3, div4);
+      set_content();
+
+      function produce() {
+        for (const k in resource_dict) {
+          const v = resource_dict[k];
+
+          // 资源或物品不足
+          if (k.startsWith("resource")) {
+            if (resource[k] < v) return;
+          } else {
+            if (data[k] < v) return;
+          }
+        }
+
+        for (const k in resource_dict) {
+          const v = resource_dict[k];
+
+          if (k.startsWith("resource")) {
+            resource[k] -= v;
+            update_viewer_line(k);
+          } else {
+            data[k] -= v;
+            update_viewer_line(k);
+          }
+        }
+
+        if (key == "consume_coal") {
+          // do nothing
+        } else {
+          if (["machine_power_station", "item_coal"].indexOf(key) >= 0)
+            update_power();
+
+          data[key] += out_rate;
+          update_viewer_line(key);
+        }
+      }
+
+      div.produce = produce;
+      div1.addEventListener("click", produce);
+
+      // 修改产线机器数量
+      div2.addEventListener("click", () => {
+        if (data[machine] <= 0) return;
+        div.num += 1;
+        data[machine] -= 1;
+        update_viewer_line(machine);
+        set_content();
+        update_power();
+      });
+
+      div3.addEventListener("click", () => {
+        if (div.num <= 0) return;
+        div.num -= 1;
+        data[machine] += 1;
+        update_viewer_line(machine);
+        set_content();
+        update_power();
+      });
+
+      return div;
+    }
+
+    document.querySelector("#explore").addEventListener("click", () => {
+      resource["resource_copper_ore"] += 1000;
+      update_viewer_line("resource_copper_ore");
+
+      resource["resource_iron_ore"] += 1000;
+      update_viewer_line("resource_iron_ore");
+
+      resource["resource_coal"] += 1000;
+      update_viewer_line("resource_coal");
+
+      resource["resource_stone"] += 1000;
+      update_viewer_line("resource_stone");
+    });
+
+    setInterval(() => {
+      var rate = (power_sum.usage + 1) / (power_sum.create + 1);
+      rate *= rate * rate;
+      if (rate < 1) rate = 1;
+
+      document.querySelectorAll(".pv_line").forEach((div) => {
+        div.tick_cnt += 1;
+        if (div.tick_cnt >= div.auto_tick * rate) {
+          div.tick_cnt = 0;
+          if (div.open) {
+            for (let i = 0; i < div.num; i++) {
+              div.produce();
+            }
+          }
+        }
+      });
+    }, 0);
+
+    add_new_resource("resource_copper_ore", 0);
+    add_new_resource("resource_iron_ore", 0);
+    add_new_resource("resource_coal", 0);
+    add_new_resource("resource_stone", 0);
+
+    add_new_data("item_copper_ore", 0);
+    add_new_data("item_iron_ore", 0);
+    add_new_data("item_coal", 0);
+    add_new_data("item_stone", 0);
+    add_new_data("item_brick", 0);
+    add_new_data("item_copper_plate", 0);
+    add_new_data("item_iron_plate", 0);
+    add_new_data("item_magnet", 0);
+    add_new_data("item_circuit", 0);
+    add_new_data("item_coil", 0);
+    add_new_data("item_gear", 0);
+
+    add_new_data("machine_mining", 1);
+    add_new_data("machine_furnace", 1);
+    add_new_data("machine_making", 1);
+    add_new_data("machine_power_station", 1);
+
+    // 采矿
+    add_new_produce(
+      0,
+      "item_copper_ore",
+      { resource_copper_ore: 1 },
+      1,
+      30,
+      "machine_mining"
+    );
+    add_new_produce(
+      0,
+      "item_iron_ore",
+      { resource_iron_ore: 1 },
+      1,
+      30,
+      "machine_mining"
+    );
+    add_new_produce(
+      0,
+      "item_coal",
+      { resource_coal: 1 },
+      1,
+      30,
+      "machine_mining"
+    );
+    add_new_produce(
+      0,
+      "item_stone",
+      { resource_stone: 1 },
+      1,
+      30,
+      "machine_mining"
+    );
+
+    // 冶炼
+    add_new_produce(
+      0,
+      "item_copper_plate",
+      { item_copper_ore: 1 },
+      1,
+      100,
+      "machine_furnace"
+    );
+    add_new_produce(
+      0,
+      "item_iron_plate",
+      { item_iron_ore: 1 },
+      1,
+      100,
+      "machine_furnace"
+    );
+    add_new_produce(
+      0,
+      "item_magnet",
+      { item_iron_ore: 1 },
+      1,
+      150,
+      "machine_furnace"
+    );
+    add_new_produce(
+      0,
+      "item_brick",
+      { item_stone: 1 },
+      1,
+      100,
+      "machine_furnace"
+    );
+
+    // 制造
+    add_new_produce(
+      0,
+      "item_circuit",
+      { item_iron_plate: 2, item_copper_plate: 1 },
+      2,
+      100,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "item_coil",
+      { item_magnet: 2, item_copper_plate: 1 },
+      2,
+      100,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "item_gear",
+      { item_iron_plate: 1 },
+      1,
+      100,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "machine_making",
+      { item_iron_plate: 4, item_gear: 8, item_circuit: 4 },
+      1,
+      200,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "machine_furnace",
+      { item_iron_plate: 4, item_brick: 2, item_circuit: 4, item_coil: 2 },
+      1,
+      300,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "machine_mining",
+      { item_iron_plate: 4, item_circuit: 2, item_coil: 2, item_gear: 2 },
+      1,
+      300,
+      "machine_making"
+    );
+    add_new_produce(
+      0,
+      "machine_power_station",
+      { item_iron_plate: 10, item_brick: 4, item_coil: 4, item_gear: 4 },
+      1,
+      500,
+      "machine_making"
+    );
+
+    // 消耗
+    add_new_produce(
+      0,
+      "consume_coal",
+      { item_coal: 1 },
+      0,
+      100,
+      "machine_power_station"
+    );
+
+    update_power();
+  </script>
+  <style>
+    #main {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 30px;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+    #power {
+      color: green;
+    }
+    #power.slow {
+      color: red;
+    }
+    .name_btn {
+      width: 100px;
+      height: 30px;
+    }
+    .num_btn {
+      width: 30px;
+      height: 30px;
+    }
+    .pv_line {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      user-select: none;
+    }
+    .v_line {
+      width: 200px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .v_line:hover,
+    .v_line.on {
+      background-color: #eee;
+    }
+
+    .v_line.mark {
+      color: red;
+      text-decoration: underline;
+    }
+
+    .pv_line.mark button.name_btn {
+      color: red;
+    }
+
+    @media (max-width: 500px) {
+      body {
+        font-size: 20px;
+      }
+
+      #main {
+        flex-direction: column;
+      }
+
+      .name_btn {
+        height: 40px;
+      }
+      .num_btn {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</html>
